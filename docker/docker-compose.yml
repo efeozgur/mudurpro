@@ -28,8 +28,8 @@ services:
 
   app:
     build:
-      context: ../backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: .
+      dockerfile: docker/Dockerfile.backend
     ports:
       - "3000:3000"
     environment:
@@ -39,12 +39,12 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ../backend/src:/app/src
+      - ./backend/src:/app/src
 
   web:
     build:
-      context: ../frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: .
+      dockerfile: docker/Dockerfile.frontend
     ports:
       - "80:80"
     depends_on:
