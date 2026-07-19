@@ -28,6 +28,15 @@ const navItems: NavItem[] = [
   { label: 'Kullanıcılar', path: '/users', icon: <Users className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
 ];
 
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export function Sidebar() {
   const { user } = useAuth();
   const location = useLocation();
@@ -36,30 +45,44 @@ export function Sidebar() {
   const filtered = navItems.filter((item) => item.roles.includes(role));
 
   return (
-    <aside className="fixed left-0 top-0 z-30 flex h-screen w-60 flex-col border-r bg-background">
-      <div className="flex h-14 items-center border-b px-4">
-        <span className="text-lg font-bold text-primary">MudurPro</span>
+    <aside className="fixed left-0 top-0 z-30 flex h-screen w-50 flex-col bg-navy">
+      <div className="flex items-center gap-2 border-b border-navy-light px-4 py-4">
+        <span className="text-lg text-gold">{String.fromCharCode(9878)}</span>
+        <div>
+          <span className="text-sm font-bold text-white font-[family-name:Georgia,serif]">MudurPro</span>
+          <p className="text-[10px] text-sidebar-text">Yazı İşleri Müdürü</p>
+        </div>
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {filtered.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              location.pathname === item.path || location.pathname.startsWith(item.path + '/')
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            {item.icon}
-            {item.label}
-          </NavLink>
-        ))}
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
+        {filtered.map((item) => {
+          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={cn(
+                'flex items-center gap-2.5 rounded-[4px] px-3 py-[7px] text-[11px] font-medium transition-colors',
+                isActive
+                  ? 'bg-gold/12 text-gold'
+                  : 'text-sidebar-text hover:bg-sidebar-hover hover:text-gray-200'
+              )}
+            >
+              {item.icon}
+              {item.label}
+            </NavLink>
+          );
+        })}
       </nav>
-      <div className="border-t p-3">
-        <p className="text-xs text-muted-foreground truncate">{user?.name}</p>
-        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+      <div className="border-t border-navy-light px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-light text-[10px] font-semibold text-gold">
+            {user?.name ? getInitials(user.name) : '?'}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-[11px] text-gray-200">{user?.name}</p>
+            <p className="truncate text-[9px] text-sidebar-text">{user?.email}</p>
+          </div>
+        </div>
       </div>
     </aside>
   );
