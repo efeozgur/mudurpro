@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { AppController } from './app.controller';
       entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
       synchronize: false,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
 })
