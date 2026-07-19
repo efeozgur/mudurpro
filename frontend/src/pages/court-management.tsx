@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import { DataTable } from '@/components/shared/data-table';
 import type { Column } from '@/components/shared/data-table';
 
@@ -21,6 +21,7 @@ interface Court {
   type: string;
   courthouse_name: string;
 }
+
 
 export default function CourtManagement() {
   const queryClient = useQueryClient();
@@ -35,10 +36,22 @@ export default function CourtManagement() {
     },
   });
 
+  const [showAssign, setShowAssign] = useState(false);
+  const [assignCourtId, setAssignCourtId] = useState<string | null>(null);
+
   const columns: Column<Court>[] = [
     { key: 'name', header: 'Mahkeme Adı', sortable: true },
     { key: 'type', header: 'Tür', sortable: true },
     { key: 'courthouse_name', header: 'Adliye', sortable: true },
+    {
+      key: 'id',
+      header: '',
+      render: (_, item) => (
+        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setAssignCourtId(item.id); setShowAssign(true); }}>
+          <UserPlus className="h-3 w-3 mr-1" /> Müdür Ata
+        </Button>
+      ),
+    },
   ];
 
   if (isLoading) return <LoadingSpinner />;
@@ -79,6 +92,68 @@ export default function CourtManagement() {
           />
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showAssign} onOpenChange={setShowAssign}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Müdür Ata</DialogTitle>
+          </DialogHeader>
+          <MudurAssignForm
+            courtId={assignCourtId!}
+            onSuccess={() => {
+              setShowAssign(false);
+              setAssignCourtId(null);
+              queryClient.invalidateQueries({ queryKey: ['courts'] });
+            }}
+            onCancel={() => { setShowAssign(false); setAssignCourtId(null); }}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function MudurAssignForm({ courtId, onSuccess, onCancel }: { courtId: string; onSuccess: () => void; onCancel: () => void }) {
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const { data: mudurs } = useQuery<{ id: string; name: string; email: string }[]>({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const res = await apiClient.get('/auth/users');
+      return (res.data.data || []).filter((u: any) => u.role === 'MUDUR');
+    },
+  });
+
+  const handleAssign = async () => {
+    if (!selectedUserId) return;
+    setSaving(true);
+    try {
+      await apiClient.post(`/courts/${courtId}/assign-mudur`, { userId: selectedUserId });
+      onSuccess();
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Label>Müdür Seçin</Label>
+      <select
+        value={selectedUserId}
+        onChange={(e) => setSelectedUserId(e.target.value)}
+        className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
+      >
+        <option value="">Seçiniz</option>
+        {(mudurs || []).map((m) => (
+          <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
+        ))}
+      </select>
+      {mudurs?.length === 0 && <p className="text-sm text-muted-foreground">Henüz MUDUR rolünde kullanıcı yok. Önce Kullanıcılar sayfasından ekleyin.</p>}
+      <div className="flex justify-end gap-3 pt-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>İptal</Button>
+        <Button onClick={handleAssign} disabled={saving || !selectedUserId}>
+          {saving ? 'Atanıyor...' : 'Ata'}
+        </Button>
+      </div>
     </div>
   );
 }
