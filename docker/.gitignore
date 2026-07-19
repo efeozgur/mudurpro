@@ -1,0 +1,6 @@
+*
+!.gitignore
+!docker-compose.yml
+!Dockerfile.backend
+!Dockerfile.frontend
+!nginx.conf
