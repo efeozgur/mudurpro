@@ -131,38 +131,83 @@ function ServiceRecordAddForm({ caseFileId, onSuccess, onCancel }: {
   onCancel: () => void;
 }) {
   const [form, setForm] = useState({
-    case_file_id: caseFileId,
-    party_name: '',
+    party_id: '',
     type: '',
     sent_date: '',
-    status: 'CREATED',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const { data: parties } = useQuery<Array<{ id: string; first_name?: string; last_name?: string; organization_name?: string; role: string }>>({
+    queryKey: ['parties', caseFileId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/cases/${caseFileId}/parties`);
+      return res.data.data;
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    if (!form.party_id) {
+      setError('Lütfen bir taraf seçin.');
+      return;
+    }
     setSaving(true);
     try {
-      await apiClient.post('/services', { ...form, sent_date: form.sent_date || undefined });
+      await apiClient.post('/services', {
+        case_file_id: caseFileId,
+        party_id: form.party_id,
+        type: form.type,
+        sent_date: form.sent_date || undefined,
+      });
       onSuccess();
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Kayıt başarısız.');
     } finally {
       setSaving(false);
     }
   };
 
+  const partyList = parties || [];
+
+  function partyLabel(p: { first_name?: string; last_name?: string; organization_name?: string; role: string }) {
+    const name = p.organization_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'İsimsiz';
+    return `${name} (${p.role})`;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="rounded-[4px] bg-critical-bg p-3 text-[12px] text-critical-text">
+          {error}
+        </div>
+      )}
+
       <div className="space-y-2">
-        <Label htmlFor="party_name">Taraf Adı *</Label>
-        <Input id="party_name" value={form.party_name} onChange={(e) => setForm({ ...form, party_name: e.target.value })} required />
+        <Label htmlFor="sr-party">Taraf *</Label>
+        <select
+          id="sr-party"
+          value={form.party_id}
+          onChange={(e) => setForm({ ...form, party_id: e.target.value })}
+          className="flex h-9 w-full rounded-[4px] border border-input bg-card px-3 py-1.5 text-sm"
+          required
+        >
+          <option value="">Seçiniz</option>
+          {partyList.map((p) => (
+            <option key={p.id} value={p.id}>{partyLabel(p)}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="sr-type">Tür *</Label>
+        <Input id="sr-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} placeholder="Tebligat, Müzekkere..." required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="type">Tür *</Label>
-        <Input id="type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} placeholder="Tebligat, Müzekkere..." required />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="sent_date">Gönderim Tarihi</Label>
-        <Input id="sent_date" type="date" value={form.sent_date} onChange={(e) => setForm({ ...form, sent_date: e.target.value })} />
+        <Label htmlFor="sr-sent-date">Gönderim Tarihi</Label>
+        <Input id="sr-sent-date" type="date" value={form.sent_date} onChange={(e) => setForm({ ...form, sent_date: e.target.value })} />
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>İptal</Button>

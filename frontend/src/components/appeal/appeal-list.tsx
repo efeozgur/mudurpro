@@ -114,45 +114,88 @@ function AppealAddForm({ caseFileId, onSuccess, onCancel }: {
   onCancel: () => void;
 }) {
   const [form, setForm] = useState({
+    applicant_party_id: '',
     type: '',
-    opposing_party: '',
     application_date: '',
-    result: '',
-    status: 'PENDING',
+    aciklama: '',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const { data: parties } = useQuery<Array<{ id: string; first_name?: string; last_name?: string; organization_name?: string; role: string }>>({
+    queryKey: ['parties', caseFileId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/cases/${caseFileId}/parties`);
+      return res.data.data;
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    if (!form.applicant_party_id) {
+      setError('Lütfen başvuran tarafı seçin.');
+      return;
+    }
     setSaving(true);
     try {
       await apiClient.post(`/cases/${caseFileId}/appeals`, {
-        ...form,
+        applicant_party_id: form.applicant_party_id,
+        type: form.type,
         application_date: form.application_date || undefined,
+        aciklama: form.aciklama || undefined,
       });
       onSuccess();
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Kayıt başarısız.');
     } finally {
       setSaving(false);
     }
   };
 
+  const partyList = parties || [];
+
+  function partyLabel(p: { first_name?: string; last_name?: string; organization_name?: string; role: string }) {
+    const name = p.organization_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'İsimsiz';
+    return `${name} (${p.role})`;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="rounded-[4px] bg-critical-bg p-3 text-[12px] text-critical-text">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="appeal-party">Başvuran Taraf *</Label>
+        <select
+          id="appeal-party"
+          value={form.applicant_party_id}
+          onChange={(e) => setForm({ ...form, applicant_party_id: e.target.value })}
+          className="flex h-9 w-full rounded-[4px] border border-input bg-card px-3 py-1.5 text-sm"
+          required
+        >
+          <option value="">Seçiniz</option>
+          {partyList.map((p) => (
+            <option key={p.id} value={p.id}>{partyLabel(p)}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="appeal-type">Tür *</Label>
         <Input id="appeal-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} placeholder="İstinaf, Temyiz..." required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="opposing-party">Karşı Taraf *</Label>
-        <Input id="opposing-party" value={form.opposing_party} onChange={(e) => setForm({ ...form, opposing_party: e.target.value })} required />
+        <Label htmlFor="application-date">Başvuru Tarihi *</Label>
+        <Input id="application-date" type="date" value={form.application_date} onChange={(e) => setForm({ ...form, application_date: e.target.value })} required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="application-date">Başvuru Tarihi</Label>
-        <Input id="application-date" type="date" value={form.application_date} onChange={(e) => setForm({ ...form, application_date: e.target.value })} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="result">Sonuç</Label>
-        <Input id="result" value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })} placeholder="Sonuç..." />
+        <Label htmlFor="appeal-aciklama">Açıklama</Label>
+        <Input id="appeal-aciklama" value={form.aciklama} onChange={(e) => setForm({ ...form, aciklama: e.target.value })} placeholder="Açıklama..." />
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>İptal</Button>
