@@ -6,10 +6,10 @@ interface SuggestionBoxProps {
 
 export function SuggestionBox({ message }: SuggestionBoxProps) {
   return (
-    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+    <div className="rounded-[6px] border border-border bg-gradient-to-r from-blue-50 to-gold/5 p-3.5">
       <div className="flex items-start gap-3">
-        <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-        <p className="text-sm text-blue-700">{message}</p>
+        <Info className="h-4 w-4 text-info mt-0.5 shrink-0" />
+        <p className="text-[12px] text-foreground/80">{message}</p>
       </div>
     </div>
   );
