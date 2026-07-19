@@ -31,7 +31,7 @@ export default function UserManagement() {
   const { data, isLoading } = useQuery<User[]>({
     queryKey: ['users'],
     queryFn: async () => {
-      const res = await apiClient.get('/users');
+      const res = await apiClient.get('/auth/users');
       return res.data.data;
     },
   });
@@ -98,7 +98,7 @@ function UserCreateForm({ onSuccess, onCancel }: { onSuccess: () => void; onCanc
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.post('/users', form);
+      await apiClient.post('/auth/users', form);
       onSuccess();
     } finally {
       setSaving(false);
