@@ -93,14 +93,6 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
         {errors.esas_no && <p className="text-sm text-destructive">{errors.esas_no.message}</p>}
       </div>
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="esas_no">Esas No *</Label>
-        <Input id="esas_no" {...register('esas_no')} placeholder="2024/123" />
-        {errors.esas_no && <p className="text-sm text-destructive">{errors.esas_no.message}</p>}
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="karar_no">Karar No</Label>
