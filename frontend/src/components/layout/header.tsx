@@ -28,26 +28,28 @@ export function Header() {
 
   const unreadCount = Array.isArray(unread) ? unread.length : unread?.count ?? 0;
 
+  const roleLabel =
+    user?.role === 'MUDUR' ? 'Müdür Paneli' : user?.role === 'ADLIYE_ADMIN' ? 'Adliye Yönetimi' : 'Sistem Yönetimi';
+
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b bg-background px-6">
-      <div className="flex items-center gap-4">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {user?.role === 'MUDUR' ? 'Müdür Paneli' : user?.role === 'ADLIYE_ADMIN' ? 'Adliye Yönetimi' : 'Sistem Yönetimi'}
-        </h2>
-      </div>
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card px-5 py-3.5">
+      <h2 className="text-[11px] font-medium text-muted-foreground tracking-wide uppercase">{roleLabel}</h2>
 
       <div className="flex items-center gap-2">
         {user?.role === 'MUDUR' && (
-          <Button size="sm" onClick={() => navigate('/cases?new=true')}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline ml-1">Yeni Dosya</span>
-          </Button>
+          <button
+            onClick={() => navigate('/cases?new=true')}
+            className="inline-flex items-center gap-1.5 rounded-[4px] bg-gradient-to-br from-gold to-gold-dark px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Yeni Dosya</span>
+          </button>
         )}
 
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="relative text-muted-foreground hover:text-foreground"
           onClick={() => navigate('/notifications')}
         >
           <Bell className="h-4 w-4" />
@@ -59,8 +61,8 @@ export function Header() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent hover:text-accent-foreground">
-            <User className="h-4 w-4" />
+          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md p-2 hover:bg-muted">
+            <User className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="px-2 py-1.5">
