@@ -29,10 +29,10 @@ export function CriticalTable({ items, title }: CriticalTableProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="rounded-lg border">
-      <div className="flex items-center gap-2 border-b px-4 py-3">
-        <AlertTriangle className="h-4 w-4 text-red-500" />
-        <h3 className="text-sm font-semibold">{title}</h3>
+    <div className="rounded-[6px] border border-border bg-card shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+        <AlertTriangle className="h-3.5 w-3.5 text-gold" />
+        <h3 className="text-xs font-semibold text-foreground font-[family-name:Georgia,serif]">{title}</h3>
       </div>
       <Table>
         <TableHeader>
@@ -46,10 +46,10 @@ export function CriticalTable({ items, title }: CriticalTableProps) {
           {items.slice(0, 5).map((item) => (
             <TableRow
               key={item.id}
-              className="cursor-pointer hover:bg-muted/50"
+              className="cursor-pointer"
               onClick={() => navigate(`/cases/${item.caseId}`)}
             >
-              <TableCell className="font-medium">{item.esasNo}</TableCell>
+              <TableCell className="font-medium text-[13px]">{item.esasNo}</TableCell>
               <TableCell>
                 {item.remainingDays != null && item.remainingDays <= 0 ? (
                   <StatusBadge status="CRITICAL" />
@@ -59,9 +59,9 @@ export function CriticalTable({ items, title }: CriticalTableProps) {
                   <StatusBadge status="TAKIP" />
                 )}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right text-[13px]">
                 {item.remainingDays != null ? (
-                  <span className={item.remainingDays <= 0 ? 'text-red-600 font-bold' : item.remainingDays <= 7 ? 'text-amber-600' : ''}>
+                  <span className={item.remainingDays <= 0 ? 'text-critical-text font-bold' : item.remainingDays <= 7 ? 'text-gold-dark' : ''}>
                     {item.remainingDays <= 0 ? 'Gecikti' : `${item.remainingDays} gün`}
                   </span>
                 ) : (
