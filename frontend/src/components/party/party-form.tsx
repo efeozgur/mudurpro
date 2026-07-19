@@ -8,11 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const partySchema = z.object({
-  type: z.enum(['PERSON', 'ORGANIZATION']),
-  name: z.string().min(1, 'Ad zorunludur'),
+  party_type: z.enum(['REAL', 'TUZEL']),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  organization_name: z.string().optional(),
   role: z.string().min(1, 'Rol zorunludur'),
-  tc_kimlik: z.string().optional(),
-  vergi_no: z.string().optional(),
+  national_id: z.string().optional(),
+  tax_number: z.string().optional(),
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email('Geçerli e-posta girin').optional().or(z.literal('')),
@@ -38,10 +40,13 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
     formState: { errors, isSubmitting },
   } = useForm<PartyFormValues>({
     resolver: zodResolver(partySchema),
-    defaultValues: { type: 'PERSON', name: '', role: '', tc_kimlik: '', vergi_no: '', address: '', phone: '', email: '' },
+    defaultValues: {
+      party_type: 'REAL', first_name: '', last_name: '', organization_name: '',
+      role: '', national_id: '', tax_number: '', address: '', phone: '', email: '',
+    },
   });
 
-  const partyType = watch('type');
+  const partyType = watch('party_type');
 
   useEffect(() => {
     if (partyId) {
@@ -49,11 +54,13 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
       apiClient.get(`/parties/${partyId}`).then((res) => {
         const p = res.data.data;
         reset({
-          type: p.type || 'PERSON',
-          name: p.name || '',
+          party_type: p.party_type || p.type || 'REAL',
+          first_name: p.first_name || '',
+          last_name: p.last_name || '',
+          organization_name: p.organization_name || '',
           role: p.role || '',
-          tc_kimlik: p.tc_kimlik || '',
-          vergi_no: p.vergi_no || '',
+          national_id: p.national_id || p.tc_kimlik || '',
+          tax_number: p.tax_number || p.vergi_no || '',
           address: p.address || '',
           phone: p.phone || '',
           email: p.email || '',
@@ -63,10 +70,11 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
   }, [partyId, reset]);
 
   const onSubmit = async (values: PartyFormValues) => {
+    const payload = { ...values };
     if (partyId) {
-      await apiClient.put(`/parties/${partyId}`, values);
+      await apiClient.put(`/parties/${partyId}`, payload);
     } else {
-      await apiClient.post(`/cases/${caseFileId}/parties`, values);
+      await apiClient.post(`/cases/${caseFileId}/parties`, payload);
     }
     onSuccess();
   };
@@ -77,17 +85,29 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label>Tür</Label>
-        <select {...register('type')} className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm">
-          <option value="PERSON">Gerçek Kişi</option>
-          <option value="ORGANIZATION">Tüzel Kişi</option>
+        <select {...register('party_type')} className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm">
+          <option value="REAL">Gerçek Kişi</option>
+          <option value="TUZEL">Tüzel Kişi</option>
         </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Ad *</Label>
-        <Input id="name" {...register('name')} placeholder="Ad soyad veya unvan" />
-        {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-      </div>
+      {partyType === 'REAL' ? (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="first_name">Ad</Label>
+            <Input id="first_name" {...register('first_name')} placeholder="Ad" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last_name">Soyad</Label>
+            <Input id="last_name" {...register('last_name')} placeholder="Soyad" />
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="organization_name">Kurum Adı *</Label>
+          <Input id="organization_name" {...register('organization_name')} placeholder="Şirket veya kurum adı" />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="role">Rol * (Örn: Davacı, Davalı)</Label>
@@ -95,15 +115,15 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
         {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
       </div>
 
-      {partyType === 'PERSON' ? (
+      {partyType === 'REAL' ? (
         <div className="space-y-2">
-          <Label htmlFor="tc_kimlik">TC Kimlik No</Label>
-          <Input id="tc_kimlik" {...register('tc_kimlik')} placeholder="11111111111" />
+          <Label htmlFor="national_id">TC Kimlik No</Label>
+          <Input id="national_id" {...register('national_id')} placeholder="11111111111" />
         </div>
       ) : (
         <div className="space-y-2">
-          <Label htmlFor="vergi_no">Vergi No</Label>
-          <Input id="vergi_no" {...register('vergi_no')} placeholder="1234567890" />
+          <Label htmlFor="tax_number">Vergi No</Label>
+          <Input id="tax_number" {...register('tax_number')} placeholder="1234567890" />
         </div>
       )}
 
