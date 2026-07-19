@@ -11,11 +11,11 @@ export function AppLayout() {
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="ml-60 flex flex-col min-h-screen">
+      <div className="ml-50 flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-5">
           <Outlet />
         </main>
       </div>
