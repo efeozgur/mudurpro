@@ -78,13 +78,13 @@ export function DataTable<T extends Record<string, unknown> | object>({
 
   return (
     <div className="space-y-3">
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative max-w-[250px]">
+        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder={searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
+          className="pl-8 text-[13px]"
         />
       </div>
 
@@ -92,7 +92,7 @@ export function DataTable<T extends Record<string, unknown> | object>({
         <div className="text-center py-8 text-muted-foreground text-sm">Yükleniyor...</div>
       ) : (
         <>
-          <div className="rounded-md border">
+          <div className="rounded-[6px] border border-border bg-card overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -123,7 +123,7 @@ export function DataTable<T extends Record<string, unknown> | object>({
                   sorted.map((item, i) => (
                     <TableRow
                       key={i}
-                      className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
+                      className={onRowClick ? 'cursor-pointer' : ''}
                       onClick={() => onRowClick?.(item)}
                     >
                       {columns.map((col) => (
@@ -140,13 +140,16 @@ export function DataTable<T extends Record<string, unknown> | object>({
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Sayfa {page} / {totalPages}
+              <span className="text-[11px] text-muted-foreground">
+                Toplam {totalPages} sayfa
               </span>
-              <div className="flex gap-1">
+              <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" onClick={() => onPageChange?.(page - 1)} disabled={page <= 1}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
+                <span className="inline-flex items-center justify-center h-7 w-7 rounded-[3px] bg-navy text-white text-[11px] font-medium">
+                  {page}
+                </span>
                 <Button variant="outline" size="sm" onClick={() => onPageChange?.(page + 1)} disabled={page >= totalPages}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
