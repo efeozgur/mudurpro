@@ -8,7 +8,7 @@ import { AuditLogService } from './audit-log.service';
 export class AuditLogController {
   constructor(private service: AuditLogService) {}
 
-  @Get('audit')
+  @Get()
   async findAll(
     @CurrentUser() user: any,
     @Query('module') module?: string,

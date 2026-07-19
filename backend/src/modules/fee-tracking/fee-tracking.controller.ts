@@ -6,7 +6,7 @@ import { FeeTrackingService } from './fee-tracking.service';
 import { CreateFeeTrackingDto } from './dto/create-fee-tracking.dto';
 import { UpdateFeeTrackingDto } from './dto/update-fee-tracking.dto';
 
-@Controller('fees')
+@Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MUDUR')
 export class FeeTrackingController {

@@ -46,7 +46,7 @@ export class DashboardController {
       const data = await this.dashboardService.getDashboard(user.id, courtIds);
       return { success: true, data, message: null };
     } catch (err) {
-      this.logger.error(`Dashboard error for user ${user.id}: ${err.message}`);
+      this.logger.error(`Dashboard error for user ${user.id}: ${(err as Error).message}`);
       return { success: true, data: emptyDashboard, message: null };
     }
   }

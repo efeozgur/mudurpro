@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { AppDataSource } from '../../database/data-source';
 
 @Injectable()
 export class TenantService {
   private readonly logger = new Logger(TenantService.name);
 
+  constructor(private dataSource: DataSource) {}
+
   async createTenantSchema(schemaName: string): Promise<void> {
-    const ds = AppDataSource;
+    const ds = this.dataSource;
     const queryRunner = ds.createQueryRunner();
     await queryRunner.connect();
 
