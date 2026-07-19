@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuditLogService } from './audit-log.service';
 
-@Controller('api/v1')
+@Controller('audit')
 @UseGuards(JwtAuthGuard)
 export class AuditLogController {
   constructor(private service: AuditLogService) {}

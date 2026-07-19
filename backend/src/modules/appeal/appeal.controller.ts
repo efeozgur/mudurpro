@@ -6,7 +6,7 @@ import { AppealService } from './appeal.service';
 import { CreateAppealDto } from './dto/create-appeal.dto';
 import { UpdateAppealDto } from './dto/update-appeal.dto';
 
-@Controller('api/v1')
+@Controller('appeals')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MUDUR')
 export class AppealController {

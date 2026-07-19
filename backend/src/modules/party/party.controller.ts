@@ -6,7 +6,7 @@ import { PartyService } from './party.service';
 import { CreatePartyDto } from './dto/create-party.dto';
 import { UpdatePartyDto } from './dto/update-party.dto';
 
-@Controller('api/v1')
+@Controller('parties')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MUDUR')
 export class PartyController {

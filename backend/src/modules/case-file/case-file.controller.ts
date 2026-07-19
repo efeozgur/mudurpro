@@ -6,7 +6,7 @@ import { CaseFileService } from './case-file.service';
 import { CreateCaseFileDto } from './dto/create-case-file.dto';
 import { UpdateCaseFileDto } from './dto/update-case-file.dto';
 
-@Controller('api/v1/cases')
+@Controller('cases')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MUDUR')
 export class CaseFileController {

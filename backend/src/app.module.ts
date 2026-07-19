@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { TenantModule } from './modules/tenant/tenant.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CourthouseModule } from './modules/courthouse/courthouse.module';
 import { CourtModule } from './modules/court/court.module';
@@ -22,8 +23,9 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
       type: 'postgres',
       url: process.env.DATABASE_URL || 'postgresql://mudurpro:mudurpro_secret@localhost:5432/mudurpro',
       entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
-      synchronize: false,
+      synchronize: true, // geliştirme için true, production'da false + migration
     }),
+    TenantModule,
     AuthModule,
     CourthouseModule,
     CourtModule,

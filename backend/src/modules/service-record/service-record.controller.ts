@@ -7,7 +7,7 @@ import { CreateServiceRecordDto } from './dto/create-service-record.dto';
 import { UpdateServiceRecordDto } from './dto/update-service-record.dto';
 import { UpdateServiceStatusDto } from './dto/update-status.dto';
 
-@Controller('api/v1')
+@Controller('services')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('MUDUR')
 export class ServiceRecordController {

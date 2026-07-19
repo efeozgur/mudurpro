@@ -6,7 +6,7 @@ import { CourtService } from './court.service';
 import { CreateCourtDto } from './dto/create-court.dto';
 import { UpdateCourtDto } from './dto/update-court.dto';
 
-@Controller('api/v1/courts')
+@Controller('courts')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CourtController {
   constructor(private service: CourtService) {}

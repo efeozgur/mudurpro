@@ -21,3 +21,5 @@ Tasks 3.2-4.3 (batch): complete (commit 2240ebe, 7 modules, review clean)
 
 Tasks 5.1-5.4 (engines): complete (commit 9844c65, 17 files, 944 lines)
 
+Task 6.x (frontend): complete (commit 3746005, 30+ pages/components)
+
