@@ -17,3 +17,7 @@ Task 2.2: complete (commits e400589..2dd4d44, review: medium wiring issues fixed
 
 Task 3.1: complete (commits cfdf3b9..7065ac0, review: missing import fixed)
 
+Tasks 3.2-4.3 (batch): complete (commit 2240ebe, 7 modules, review clean)
+
+Tasks 5.1-5.4 (engines): complete (commit 9844c65, 17 files, 944 lines)
+
