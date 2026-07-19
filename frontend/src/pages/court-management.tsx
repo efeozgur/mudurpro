@@ -46,7 +46,7 @@ export default function CourtManagement() {
     {
       key: 'id',
       header: '',
-      render: (_, item) => (
+      render: (item) => (
         <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setAssignCourtId(item.id); setShowAssign(true); }}>
           <UserPlus className="h-3 w-3 mr-1" /> Müdür Ata
         </Button>
