@@ -15,3 +15,5 @@ Task 2.1: complete (commits 729ee69..fd48a3d, review: 2 medium fixed)
 
 Task 2.2: complete (commits e400589..2dd4d44, review: medium wiring issues fixed)
 
+Task 3.1: complete (commits cfdf3b9..7065ac0, review: missing import fixed)
+
