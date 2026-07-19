@@ -58,10 +58,10 @@ export default function AuditLogViewer() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Denetim Kayıtları</h1>
-        <p className="text-sm text-muted-foreground mt-1">Sistem genelindeki işlem kayıtları</p>
+        <h1 className="text-lg font-bold text-foreground font-[family-name:Georgia,serif]">Denetim Kayıtları</h1>
+        <p className="text-[11px] text-muted-foreground mt-0.5">Sistem genelindeki işlem kayıtları</p>
       </div>
 
       <div className="flex flex-wrap items-end gap-4">

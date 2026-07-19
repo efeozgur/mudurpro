@@ -53,16 +53,17 @@ export default function NotificationCenter() {
   const items = notifications || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Bildirimler</h1>
-        <p className="text-sm text-muted-foreground mt-1">Tüm bildirimlerinizi görüntüleyin ve yönetin</p>
+        <h1 className="text-lg font-bold text-foreground font-[family-name:Georgia,serif]">Bildirimler</h1>
+        <p className="text-[11px] text-muted-foreground mt-0.5">Tüm bildirimlerinizi görüntüleyin ve yönetin</p>
       </div>
 
       {items.length === 0 ? (
         <EmptyState message="Henüz bildirim yok." icon={<Bell className="h-12 w-12" />} />
       ) : (
-        <Table>
+        <div className="rounded-[6px] border border-border bg-card overflow-hidden shadow-sm">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Bildirim</TableHead>
@@ -114,6 +115,7 @@ export default function NotificationCenter() {
             ))}
           </TableBody>
         </Table>
+        </div>
       )}
     </div>
   );

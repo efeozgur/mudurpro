@@ -44,16 +44,16 @@ export default function CourthouseManagement() {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Adliyeler</h1>
-          <p className="text-sm text-muted-foreground mt-1">Adliye yönetimi</p>
+          <h1 className="text-lg font-bold text-foreground font-[family-name:Georgia,serif]">Adliyeler</h1>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Adliye yönetimi</p>
         </div>
-        <Button onClick={() => { setEditingId(null); setShowForm(true); }}>
-          <Plus className="h-4 w-4 mr-1" />
+        <button onClick={() => { setEditingId(null); setShowForm(true); }} className="inline-flex items-center gap-1.5 rounded-[4px] bg-gradient-to-br from-gold to-gold-dark px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
+          <Plus className="h-4 w-4" />
           Yeni Adliye
-        </Button>
+        </button>
       </div>
 
       <DataTable
