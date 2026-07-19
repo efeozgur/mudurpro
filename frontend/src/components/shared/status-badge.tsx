@@ -6,32 +6,32 @@ interface StatusBadgeProps {
 }
 
 const statusMap: Record<string, { label: string; className: string }> = {
-  ACTIVE: { label: 'Aktif', className: 'bg-green-100 text-green-800 border-green-200' },
-  ARCHIVED: { label: 'Arşiv', className: 'bg-gray-100 text-gray-800 border-gray-200' },
-  SERVED: { label: 'Tebliğ Edildi', className: 'bg-green-100 text-green-800 border-green-200' },
-  RETURNED: { label: 'İade', className: 'bg-red-100 text-red-800 border-red-200' },
-  CRITICAL: { label: 'Kritik', className: 'bg-red-100 text-red-800 border-red-200' },
-  KRITIK: { label: 'Kritik', className: 'bg-red-100 text-red-800 border-red-200' },
-  WARNING: { label: 'Uyarı', className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  YAKLASIYOR: { label: 'Yaklaşıyor', className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  TAKIP: { label: 'Takip', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  NORMAL: { label: 'Normal', className: 'bg-green-100 text-green-800 border-green-200' },
-  CREATED: { label: 'Oluşturuldu', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  BEKLIYOR: { label: 'Bekliyor', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  MUZEKKERE_REQUIRED: { label: 'Müzekkere Gerekli', className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  PAID: { label: 'Ödendi', className: 'bg-green-100 text-green-800 border-green-200' },
-  PENDING: { label: 'Beklemede', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  TRANSFERRED: { label: 'Gönderildi', className: 'bg-green-100 text-green-800 border-green-200' },
-  UNREAD: { label: 'Okunmadı', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  READ: { label: 'Okundu', className: 'bg-gray-100 text-gray-800 border-gray-200' },
-  COMPLETED: { label: 'Tamamlandı', className: 'bg-green-100 text-green-800 border-green-200' },
+  ACTIVE: { label: 'Aktif', className: 'bg-success-bg text-success-text' },
+  ARCHIVED: { label: 'Arşiv', className: 'bg-muted text-muted-foreground' },
+  SERVED: { label: 'Tebliğ Edildi', className: 'bg-success-bg text-success-text' },
+  RETURNED: { label: 'İade', className: 'bg-critical-bg text-critical-text' },
+  CRITICAL: { label: 'Kritik', className: 'bg-critical-bg text-critical-text' },
+  KRITIK: { label: 'Kritik', className: 'bg-critical-bg text-critical-text' },
+  WARNING: { label: 'Uyarı', className: 'bg-warning-bg text-warning-text' },
+  YAKLASIYOR: { label: 'Yaklaşıyor', className: 'bg-warning-bg text-warning-text' },
+  TAKIP: { label: 'Takip', className: 'bg-warning-bg text-warning-text' },
+  NORMAL: { label: 'Normal', className: 'bg-normal-bg text-normal-text' },
+  CREATED: { label: 'Oluşturuldu', className: 'bg-normal-bg text-normal-text' },
+  BEKLIYOR: { label: 'Bekliyor', className: 'bg-normal-bg text-normal-text' },
+  MUZEKKERE_REQUIRED: { label: 'Müzekkere Gerekli', className: 'bg-warning-bg text-warning-text' },
+  PAID: { label: 'Ödendi', className: 'bg-success-bg text-success-text' },
+  PENDING: { label: 'Beklemede', className: 'bg-normal-bg text-normal-text' },
+  TRANSFERRED: { label: 'Gönderildi', className: 'bg-success-bg text-success-text' },
+  UNREAD: { label: 'Okunmadı', className: 'bg-normal-bg text-normal-text' },
+  READ: { label: 'Okundu', className: 'bg-muted text-muted-foreground' },
+  COMPLETED: { label: 'Tamamlandı', className: 'bg-success-bg text-success-text' },
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusMap[status] || { label: status, className: 'bg-gray-100 text-gray-800 border-gray-200' };
+  const config = statusMap[status] || { label: status, className: 'bg-muted text-muted-foreground' };
 
   return (
-    <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium', config.className, className)}>
+    <span className={cn('inline-flex items-center rounded-[3px] px-2 py-0.5 text-[10px] font-medium', config.className, className)}>
       {config.label}
     </span>
   );
