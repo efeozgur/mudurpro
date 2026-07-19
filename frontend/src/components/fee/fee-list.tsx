@@ -40,7 +40,7 @@ export function FeeList({ caseFileId }: FeeListProps) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
-  const { data, isLoading } = useQuery<Fee[]>({
+  const { data, isLoading, error } = useQuery<Fee[]>({
     queryKey: ['fees', caseFileId],
     queryFn: async () => {
       const res = await apiClient.get(`/cases/${caseFileId}/fees`);
@@ -55,6 +55,16 @@ export function FeeList({ caseFileId }: FeeListProps) {
   });
 
   if (isLoading) return <LoadingSpinner />;
+
+  if (error) {
+    const errMsg = (error as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+    const msg = Array.isArray(errMsg) ? errMsg.join(', ') : errMsg || 'Harçlar yüklenirken hata oluştu.';
+    return (
+      <div className="rounded-[6px] border border-border bg-card p-6 text-center">
+        <p className="text-sm text-critical-text">{msg}</p>
+      </div>
+    );
+  }
 
   const fees = data || [];
 
@@ -136,30 +146,77 @@ function FeeAddForm({ caseFileId, onSuccess, onCancel }: {
   onCancel: () => void;
 }) {
   const [form, setForm] = useState({
+    debtor_party_id: '',
     type: '',
     amount: '',
-    due_date: '',
-    status: 'PENDING',
+    payment_due_date: '',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const { data: parties } = useQuery<Array<{ id: string; first_name?: string; last_name?: string; organization_name?: string; role: string }>>({
+    queryKey: ['parties', caseFileId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/cases/${caseFileId}/parties`);
+      return res.data.data;
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    if (!form.debtor_party_id) {
+      setError('Lütfen borçlu tarafı seçin.');
+      return;
+    }
     setSaving(true);
     try {
       await apiClient.post(`/cases/${caseFileId}/fees`, {
-        ...form,
+        debtor_party_id: form.debtor_party_id,
+        type: form.type,
         amount: parseFloat(form.amount),
-        due_date: form.due_date || undefined,
+        payment_due_date: form.payment_due_date || undefined,
       });
       onSuccess();
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(', ') : msg || 'Kayıt başarısız.');
     } finally {
       setSaving(false);
     }
   };
 
+  const partyList = parties || [];
+
+  function partyLabel(p: { first_name?: string; last_name?: string; organization_name?: string; role: string }) {
+    const name = p.organization_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'İsimsiz';
+    return `${name} (${p.role})`;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="rounded-[4px] bg-critical-bg p-3 text-[12px] text-critical-text">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="debtor-party">Borçlu Taraf *</Label>
+        <select
+          id="debtor-party"
+          value={form.debtor_party_id}
+          onChange={(e) => setForm({ ...form, debtor_party_id: e.target.value })}
+          className="flex h-9 w-full rounded-[4px] border border-input bg-card px-3 py-1.5 text-sm"
+          required
+        >
+          <option value="">Seçiniz</option>
+          {partyList.map((p) => (
+            <option key={p.id} value={p.id}>{partyLabel(p)}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="fee-type">Tür *</Label>
         <Input id="fee-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} placeholder="Başvuru, Karar, Temyiz..." required />
@@ -169,8 +226,8 @@ function FeeAddForm({ caseFileId, onSuccess, onCancel }: {
         <Input id="amount" type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="due-date">Son Ödeme Tarihi</Label>
-        <Input id="due-date" type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
+        <Label htmlFor="payment-due-date">Son Ödeme Tarihi</Label>
+        <Input id="payment-due-date" type="date" value={form.payment_due_date} onChange={(e) => setForm({ ...form, payment_due_date: e.target.value })} />
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>İptal</Button>
