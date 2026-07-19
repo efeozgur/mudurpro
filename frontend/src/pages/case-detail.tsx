@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/shared/status-badge';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
 import { CaseFileForm } from '@/components/case-file/case-file-form';
@@ -19,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ArrowLeft, Archive, RotateCcw } from 'lucide-react';
+import { Archive, RotateCcw } from 'lucide-react';
 
 interface CaseFileDetail {
   id: string;
@@ -71,69 +70,65 @@ export default function CaseDetail() {
   const isArchived = data.durum === 'ARCHIVED';
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/cases')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{data.esas_no}</h1>
-            <p className="text-sm text-muted-foreground">Dosya Detayı</p>
+    <div className="space-y-5">
+      <div>
+        <span
+          className="text-[11px] text-muted-foreground hover:text-foreground cursor-pointer"
+          onClick={() => navigate('/cases')}
+        >
+          ← Dosyalar
+        </span>
+        <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-bold font-[family-name:Georgia,serif]">{data.esas_no}</h1>
+            <StatusBadge status={data.durum} />
           </div>
-          <StatusBadge status={data.durum} />
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowEdit(true)} disabled={isArchived}>
-            Düzenle
-          </Button>
-          {isArchived ? (
-            <Button variant="outline" size="sm" onClick={() => setShowRestoreConfirm(true)}>
-              <RotateCcw className="h-4 w-4 mr-1" />
-              Arşivden Çıkar
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowEdit(true)} disabled={isArchived}>
+              Düzenle
             </Button>
-          ) : (
-            <Button variant="outline" size="sm" onClick={() => setShowArchiveConfirm(true)}>
-              <Archive className="h-4 w-4 mr-1" />
-              Arşivle
-            </Button>
-          )}
+            {isArchived ? (
+              <Button variant="outline" size="sm" onClick={() => setShowRestoreConfirm(true)}>
+                <RotateCcw className="h-4 w-4 mr-1" />
+                Arşivden Çıkar
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setShowArchiveConfirm(true)}>
+                <Archive className="h-4 w-4 mr-1" />
+                Arşivle
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="general">Genel Bilgiler</TabsTrigger>
-          <TabsTrigger value="parties">Taraflar</TabsTrigger>
-          <TabsTrigger value="services">Tebligatlar</TabsTrigger>
-          <TabsTrigger value="appeals">Kanun Yolu</TabsTrigger>
-          <TabsTrigger value="fees">Harç</TabsTrigger>
+        <TabsList className="border-b border-border">
+          <TabsTrigger value="general" className="text-[12px] data-[state=active]:border-b-2 data-[state=active]:border-b-gold data-[state=active]:text-gold data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground">Genel Bilgiler</TabsTrigger>
+          <TabsTrigger value="parties" className="text-[12px] data-[state=active]:border-b-2 data-[state=active]:border-b-gold data-[state=active]:text-gold data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground">Taraflar</TabsTrigger>
+          <TabsTrigger value="services" className="text-[12px] data-[state=active]:border-b-2 data-[state=active]:border-b-gold data-[state=active]:text-gold data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground">Tebligatlar</TabsTrigger>
+          <TabsTrigger value="appeals" className="text-[12px] data-[state=active]:border-b-2 data-[state=active]:border-b-gold data-[state=active]:text-gold data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground">Kanun Yolu</TabsTrigger>
+          <TabsTrigger value="fees" className="text-[12px] data-[state=active]:border-b-2 data-[state=active]:border-b-gold data-[state=active]:text-gold data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground">Harç</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Dosya Bilgileri</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
+            <div className="rounded-[6px] border border-border bg-card shadow-sm p-4">
+              <h3 className="text-xs font-semibold font-[family-name:Georgia,serif] mb-3">Dosya Bilgileri</h3>
+              <div className="space-y-2 text-[12px]">
                 <div className="flex justify-between"><span className="text-muted-foreground">Esas No</span><span className="font-medium">{data.esas_no}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Karar No</span><span className="font-medium">{data.karar_no || '-'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Karar Tarihi</span><span className="font-medium">{data.karar_tarihi ? new Date(data.karar_tarihi).toLocaleDateString('tr-TR') : '-'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Karar Sonucu</span><span className="font-medium">{data.karar_sonucu || '-'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Kanun Yolu</span><span className="font-medium">{data.kanun_yolu || '-'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Durum</span><StatusBadge status={data.durum} /></div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             {data.aciklama && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Açıklama</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">{data.aciklama}</p>
-                </CardContent>
-              </Card>
+              <div className="rounded-[6px] border border-border bg-card shadow-sm p-4">
+                <h3 className="text-xs font-semibold font-[family-name:Georgia,serif] mb-3">Açıklama</h3>
+                <p className="text-[12px]">{data.aciklama}</p>
+              </div>
             )}
           </div>
         </TabsContent>
