@@ -15,6 +15,8 @@ export class CourthouseService {
 
   async findAll() { return this.repo.find({ where: { deleted_at: IsNull() } }); }
 
+  async findById(id: string) { return this.repo.findOne({ where: { id, deleted_at: IsNull() } }); }
+
   async create(dto: CreateCourthouseDto) {
     const courthouse = this.repo.create({ ...dto, schema_name: `courthouse_${Date.now()}` });
     const saved = await this.repo.save(courthouse);

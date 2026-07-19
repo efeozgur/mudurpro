@@ -17,6 +17,12 @@ export class CourthouseController {
     return { success: true, data: await this.service.findAll(), message: null };
   }
 
+  @Get(':id')
+  @Roles('SUPER_ADMIN')
+  async findById(@Param('id') id: string) {
+    return { success: true, data: await this.service.findById(id), message: null };
+  }
+
   @Post()
   @Roles('SUPER_ADMIN')
   async create(@Body() dto: CreateCourthouseDto) {
