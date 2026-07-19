@@ -1,12 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const caseFileSchema = z.object({
+  court_id: z.string().uuid('Mahkeme seçimi zorunludur'),
   esas_no: z.string().min(1, 'Esas no zorunludur'),
   karar_no: z.string().optional(),
   karar_tarihi: z.string().optional(),
@@ -18,12 +20,20 @@ const caseFileSchema = z.object({
 type CaseFileFormValues = z.infer<typeof caseFileSchema>;
 
 interface CaseFileFormProps {
-  defaultValues?: Partial<CaseFileFormValues> & { court_id?: string; id?: string };
+  defaultValues?: Partial<CaseFileFormValues> & { id?: string };
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFormProps) {
+  const { data: courts } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['courts'],
+    queryFn: async () => {
+      const res = await apiClient.get('/courts');
+      return res.data.data || [];
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -31,6 +41,7 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
   } = useForm<CaseFileFormValues>({
     resolver: zodResolver(caseFileSchema),
     defaultValues: {
+      court_id: defaultValues?.court_id || (courts && courts.length === 1 ? courts[0].id : ''),
       esas_no: defaultValues?.esas_no || '',
       karar_no: defaultValues?.karar_no || '',
       karar_tarihi: defaultValues?.karar_tarihi || '',
@@ -42,7 +53,6 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
 
   const onSubmit = async (values: CaseFileFormValues) => {
     const payload = {
-      court_id: defaultValues?.court_id || '',
       ...values,
       karar_tarihi: values.karar_tarihi || undefined,
     };
@@ -54,6 +64,34 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
     }
     onSuccess();
   };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {courts && courts.length > 1 && (
+        <div className="space-y-2">
+          <Label htmlFor="court_id">Mahkeme *</Label>
+          <select
+            id="court_id"
+            {...register('court_id')}
+            className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
+          >
+            <option value="">Seçiniz</option>
+            {courts.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          {errors.court_id && <p className="text-sm text-destructive">{errors.court_id.message}</p>}
+        </div>
+      )}
+      {courts && courts.length === 0 && (
+        <p className="text-sm text-destructive">Henüz bir mahkemeye atanmadınız.</p>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="esas_no">Esas No *</Label>
+        <Input id="esas_no" {...register('esas_no')} placeholder="2024/123" />
+        {errors.esas_no && <p className="text-sm text-destructive">{errors.esas_no.message}</p>}
+      </div>
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
