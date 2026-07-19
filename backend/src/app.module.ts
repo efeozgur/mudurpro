@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
@@ -9,6 +10,11 @@ import { PartyModule } from './modules/party/party.module';
 import { ServiceRecordModule } from './modules/service-record/service-record.module';
 import { AppealModule } from './modules/appeal/appeal.module';
 import { FeeTrackingModule } from './modules/fee-tracking/fee-tracking.module';
+import { SureEngineModule } from './modules/sure-engine/sure-engine.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 @Module({
   imports: [
@@ -26,7 +32,17 @@ import { FeeTrackingModule } from './modules/fee-tracking/fee-tracking.module';
     ServiceRecordModule,
     AppealModule,
     FeeTrackingModule,
+    SureEngineModule,
+    NotificationModule,
+    AuditLogModule,
+    DashboardModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseTransformInterceptor,
+    },
+  ],
 })
 export class AppModule {}
