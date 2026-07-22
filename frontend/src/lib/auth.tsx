@@ -9,6 +9,7 @@ interface User {
   name: string;
   courthouse_id?: string;
   courthouseId?: string;
+  permissions?: string[];
 }
 
 interface AuthContextType {

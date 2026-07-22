@@ -6,11 +6,11 @@ import {
   FolderOpen,
   Building2,
   Users,
-  Bell,
   FileSearch,
   Scale,
   Settings,
   Archive,
+  FileText,
   X,
 } from 'lucide-react';
 
@@ -19,13 +19,15 @@ interface NavItem {
   path: string;
   icon: React.ReactNode;
   roles: string[];
+  permission?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['MUDUR'] },
-  { label: 'Dosyalar', path: '/cases', icon: <FolderOpen className="h-4 w-4" />, roles: ['MUDUR'] },
-  { label: 'Arşiv', path: '/archived', icon: <Archive className="h-4 w-4" />, roles: ['MUDUR'] },
-  { label: 'Bildirimler', path: '/notifications', icon: <Bell className="h-4 w-4" />, roles: ['MUDUR', 'ADLIYE_ADMIN', 'SUPER_ADMIN'] },
+  { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'REPORTS' },
+  { label: 'Dosyalar', path: '/cases', icon: <FolderOpen className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'CASES' },
+  { label: 'Arşiv', path: '/archived', icon: <Archive className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'CASES' },
+  { label: 'Katiplerim', path: '/clerks', icon: <Users className="h-4 w-4" />, roles: ['MUDUR'] },
+  { label: 'Şablonlar', path: '/templates', icon: <FileText className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'TEMPLATES' },
   { label: 'Denetim Kayıtları', path: '/audit', icon: <FileSearch className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
   { label: 'Adliyeler', path: '/courthouses', icon: <Building2 className="h-4 w-4" />, roles: ['SUPER_ADMIN', 'ADLIYE_ADMIN'] },
   { label: 'Mahkemeler', path: '/courts', icon: <Scale className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
@@ -46,8 +48,9 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
   const { user } = useAuth();
   const location = useLocation();
   const role = user?.role || '';
-
-  const filtered = navItems.filter((item) => item.roles.includes(role));
+  const filtered = navItems.filter((item) =>
+    item.roles.includes(role) && (role !== 'KATIP' || !item.permission || user?.permissions?.includes(item.permission)),
+  );
 
   return (
     <aside className={`

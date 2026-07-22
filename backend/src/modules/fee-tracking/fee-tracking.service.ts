@@ -33,21 +33,30 @@ export class FeeTrackingService {
     });
     if (!debtor) throw new BadRequestException('Debtor party does not exist in this case file');
 
-    // Auto-calculate payment_due_date if not provided: latest served_date + 1 month
-    if (!dto.payment_due_date && dto.case_file_id) {
+    // Auto-calculate payment_due_date if not provided:
+    // 1 month after the reasoned decision (KARAR) was served to the debtor party
+    if (!dto.payment_due_date && dto.case_file_id && dto.debtor_party_id) {
       try {
-        const latestService = await this.serviceRepo.findOne({
-          where: { case_file_id: dto.case_file_id, served_date: Not(IsNull()), deleted_at: IsNull() },
-          order: { served_date: 'DESC' as const },
-        });
-        if (latestService?.served_date) {
-          const dueDate = new Date(latestService.served_date);
-          dueDate.setMonth(dueDate.getMonth() + 1);
-          (dto as any).payment_due_date = dueDate.toISOString().split('T')[0];
-        }
-      } catch { /* if no service record found, leave payment_due_date as null */ }
-    }
+        // Find the last reasoned-decision service (KARAR) to the debtor party
+        // Exclude appeal/cassation petition types — same convention as sure-engine
+        const decisionService = await this.serviceRepo
+          .createQueryBuilder('sr')
+          .where('sr.case_file_id = :caseFileId', { caseFileId: dto.case_file_id })
+          .andWhere('sr.party_id = :partyId', { partyId: dto.debtor_party_id })
+          .andWhere('sr.served_date IS NOT NULL')
+          .andWhere('sr.deleted_at IS NULL')
+          .andWhere('sr.type NOT ILIKE :istinaf', { istinaf: '%ISTINAF%' })
+          .andWhere('sr.type NOT ILIKE :temyiz', { temyiz: '%TEMYIZ%' })
+          .orderBy('sr.served_date', 'DESC')
+          .getOne();
 
+        if (decisionService?.served_date) {
+          const dueDate = new Date(decisionService.served_date);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dto.payment_due_date = dueDate.toISOString().split('T')[0];
+        }
+      } catch { /* if no karar service record found, leave payment_due_date as null */ }
+    }
     const entity = this.repo.create(dto);
     return this.repo.save(entity);
   }

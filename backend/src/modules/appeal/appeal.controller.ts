@@ -33,11 +33,15 @@ export class AppealController {
   private async verifyCaseFileAccess(caseFileId: string, userId: string): Promise<void> {
     const userCourtIds = await this.getUserCourtIds(userId);
     const cf = await this.caseFileRepo.findOne({ where: { id: caseFileId, deleted_at: IsNull() } });
-    if (!cf || !userCourtIds.includes(cf.court_id)) {
-      throw new ForbiddenException('Bu dosyaya erişim yetkiniz yok.');
-    }
-  }
+    if (!cf) throw new ForbiddenException('Bu dosyaya erişim yetkiniz yok.');
+    const assignment = await this.userCourtRepo.manager.query(
+      `SELECT 1 FROM clerk_case_assignments WHERE clerk_id = $1 AND case_file_id = $2 AND deleted_at IS NULL`,
+      [userId, caseFileId],
+    );
+    if (assignment.length > 0 || userCourtIds.includes(cf.court_id)) return;
+    throw new ForbiddenException('Bu dosyaya erişim yetkiniz yok.');
 
+  }
   @Get('cases/:caseFileId/appeals')
   async findByCaseFile(@CurrentUser() user: any, @Param('caseFileId') caseFileId: string) {
     await this.verifyCaseFileAccess(caseFileId, user.id);

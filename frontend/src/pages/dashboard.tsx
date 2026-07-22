@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import apiClient from '@/lib/api-client';
+import { useAuth } from '@/lib/auth';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { SuggestionBox } from '@/components/dashboard/suggestion-box';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
@@ -133,6 +134,7 @@ interface DashboardData {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedCourtId, setSelectedCourtId] = useState<string>('ALL');
   const [detailTab, setDetailTab] = useState<'critical' | 'pending' | 'tracking'>('critical');
   const [searchQuery, setSearchQuery] = useState('');
@@ -144,10 +146,29 @@ export default function Dashboard() {
       return res.data.data;
     },
   });
+  if (user?.role === 'KATIP' && !user.permissions?.includes('REPORTS')) return <Navigate to="/cases" replace />;
 
   if (isLoading) return <LoadingSpinner />;
 
-  const d = data!;
+  const emptyWidget = { count: 0, items: [] };
+  const d: DashboardData = {
+    totalCasesCount: 0,
+    activeCasesCount: 0,
+    finalizedCasesCount: 0,
+    courts: [],
+    ...data,
+    criticalDeadlines: { ...emptyWidget, ...data?.criticalDeadlines },
+    pendingServices: { ...emptyWidget, ...data?.pendingServices },
+    readyForFinalization: { ...emptyWidget, ...data?.readyForFinalization },
+    readyForAppealTransfer: { ...emptyWidget, ...data?.readyForAppealTransfer },
+    feeMuzekkereRequired: { ...emptyWidget, ...data?.feeMuzekkereRequired },
+    returnedServices: { ...emptyWidget, ...data?.returnedServices },
+    appealResponseDeadlines: { ...emptyWidget, ...data?.appealResponseDeadlines },
+    recentActivity: { ...emptyWidget, ...data?.recentActivity },
+    feeSummary: { totalCount: 0, totalAmount: 0, collectedAmount: 0, pendingAmount: 0, byStatus: {}, overdueItems: [], ...data?.feeSummary },
+    serviceTracking: { items: [], byStatus: {}, totalCount: 0, ...data?.serviceTracking },
+    appealStats: { totalCount: 0, istinafCount: 0, temyizCount: 0, pendingCount: 0, completedCount: 0, sentToUpperCourtCount: 0, items: [], ...data?.appealStats },
+  };
 
   // Filter helper based on selected court
   const filterItems = <T extends { courtId?: string }>(items: T[]): T[] => {

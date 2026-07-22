@@ -12,6 +12,9 @@ import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateClerkDto } from './dto/create-clerk.dto';
+import { UpdateClerkDto } from './dto/update-clerk.dto';
+import { UpdateClerkAssignmentsDto } from './dto/update-clerk-assignments.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -106,5 +109,61 @@ export class AuthController {
   ) {
     const result = await this.authService.deleteUser(id, user.id, user.role, user.courthouseId);
     return { success: true, data: result, message: null };
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Get('clerks')
+  async listClerks(@CurrentUser() user: { id: string; courthouseId?: string }) {
+    return { success: true, data: await this.authService.listClerks(user.id, user.courthouseId), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Post('clerks')
+  async createClerk(
+    @Body() dto: CreateClerkDto,
+    @CurrentUser() user: { id: string; courthouseId?: string },
+  ) {
+    return { success: true, data: await this.authService.createClerk(dto, user.id, user.courthouseId), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Put('clerks/:id')
+  async updateClerk(
+    @Param('id') id: string,
+    @Body() dto: UpdateClerkDto,
+    @CurrentUser() user: { id: string; courthouseId?: string },
+  ) {
+    return { success: true, data: await this.authService.updateClerk(id, dto, user.id, user.courthouseId), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Delete('clerks/:id')
+  async deleteClerk(@Param('id') id: string, @CurrentUser() user: { id: string; courthouseId?: string }) {
+    return { success: true, data: await this.authService.deleteClerk(id, user.id, user.courthouseId), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Get('clerks/:id/assignments')
+  async getClerkAssignments(@Param('id') id: string, @CurrentUser() user: { id: string; courthouseId?: string }) {
+    return { success: true, data: await this.authService.getClerkAssignments(id, user.id, user.courthouseId), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('MUDUR')
+  @Put('clerks/:id/assignments')
+  async updateClerkAssignments(
+    @Param('id') id: string,
+    @Body() dto: UpdateClerkAssignmentsDto,
+    @CurrentUser() user: { id: string; courthouseId?: string },
+  ) {
+    return {
+      success: true,
+      data: await this.authService.updateClerkAssignments(id, dto, user.id, user.courthouseId),
+      message: null,
+    };
   }
 }

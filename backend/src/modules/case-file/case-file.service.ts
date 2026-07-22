@@ -15,7 +15,7 @@ export class CaseFileService {
     private sureEngine: SureEngineService,
   ) {}
 
-  async findAll(filters?: { courtIds?: string[]; durum?: string; page?: number; limit?: number }) {
+  async findAll(filters?: { courtIds?: string[]; caseFileIds?: string[]; durum?: string; page?: number; limit?: number }) {
     const page = filters?.page || 1;
     const limit = filters?.limit || 20;
     const courtIds = filters?.courtIds;
@@ -24,6 +24,9 @@ export class CaseFileService {
     const countQb = this.repo.createQueryBuilder('cf').where('cf.deleted_at IS NULL');
     if (courtIds && courtIds.length > 0) {
       countQb.andWhere('cf.court_id IN (:...courtIds)', { courtIds });
+    }
+    if (filters?.caseFileIds && filters.caseFileIds.length > 0) {
+      countQb.andWhere('cf.id IN (:...caseFileIds)', { caseFileIds: filters.caseFileIds });
     }
     if (filters?.durum) {
       countQb.andWhere('cf.durum = :durum', { durum: filters.durum });
@@ -41,6 +44,9 @@ export class CaseFileService {
 
     if (courtIds && courtIds.length > 0) {
       dataQb.andWhere('cf.court_id IN (:...courtIds)', { courtIds });
+    }
+    if (filters?.caseFileIds && filters.caseFileIds.length > 0) {
+      dataQb.andWhere('cf.id IN (:...caseFileIds)', { caseFileIds: filters.caseFileIds });
     }
     if (filters?.durum) {
       dataQb.andWhere('cf.durum = :durum', { durum: filters.durum });
@@ -182,7 +188,7 @@ export class CaseFileService {
   async archive(id: string) {
     const entity = await this.repo.findOne({ where: { id, deleted_at: IsNull() } });
     if (!entity) throw new NotFoundException('Dosya bulunamadı.');
-    if (entity.durum === 'FINALIZED') throw new BadRequestException('Kesinleşmiş dosya arşivlenemez.');
+
     if (entity.durum === 'UST_MAHKEMEDE') throw new BadRequestException('Üst mahkemeye gönderilmiş dosya arşivlenemez.');
     if (entity.durum === 'ARCHIVED') throw new BadRequestException('Dosya zaten arşivde.');
     entity.durum = 'ARCHIVED';

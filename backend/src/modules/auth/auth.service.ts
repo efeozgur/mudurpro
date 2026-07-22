@@ -4,14 +4,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
+import { ClerkCaseAssignment } from './entities/clerk-case-assignment.entity';
+import { CreateClerkDto } from './dto/create-clerk.dto';
+import { UpdateClerkDto } from './dto/update-clerk.dto';
+import { UpdateClerkAssignmentsDto } from './dto/update-clerk-assignments.dto';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+export const CLERK_MODULES = ['CASES', 'PARTIES', 'SERVICES', 'FEES', 'APPEALS', 'TEMPLATES', 'REPORTS'] as const;
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(ClerkCaseAssignment) private assignmentRepo: Repository<ClerkCaseAssignment>,
     private jwtService: JwtService,
   ) {}
 
@@ -25,7 +32,7 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role, courthouseId: user.courthouse_id };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, role: user.role, name: user.name, courthouseId: user.courthouse_id },
+      user: { id: user.id, email: user.email, role: user.role, name: user.name, courthouseId: user.courthouse_id, permissions: user.permissions || [] },
     };
   }
 
@@ -153,4 +160,158 @@ export class AuthService {
     await this.userRepo.softDelete(id);
     return { success: true };
   }
+  async assertClerkCaseAccess(userId: string, caseFileId: string, permission: string) {
+    const clerk = await this.userRepo.findOne({ where: { id: userId, role: 'KATIP', active: true, deleted_at: IsNull() } });
+    if (!clerk || !clerk.permissions?.includes(permission)) {
+      throw new ForbiddenException('Bu modüle veya dosyaya erişim yetkiniz yok.');
+    }
+    const assignment = await this.assignmentRepo.findOne({ where: { clerk_id: userId, case_file_id: caseFileId } });
+    if (!assignment) throw new ForbiddenException('Bu dosya size atanmadı.');
+  }
+
+  async listClerks(managerId: string, courthouseId?: string) {
+    if (!courthouseId) throw new ForbiddenException('Müdürün adliye bağlantısı bulunamadı.');
+    const clerks = await this.userRepo.find({
+      where: { role: 'KATIP', created_by: managerId, courthouse_id: courthouseId, deleted_at: IsNull() },
+      order: { name: 'ASC' },
+    });
+    return clerks.map(({ password_hash, ...clerk }) => clerk);
+  }
+
+  async createClerk(dto: CreateClerkDto, managerId: string, courthouseId?: string) {
+    if (!courthouseId) throw new ForbiddenException('Müdürün adliye bağlantısı bulunamadı.');
+    const existing = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (existing) throw new ConflictException('EMAIL_EXISTS');
+
+    const password_hash = await bcrypt.hash(dto.password, 10);
+    const permissions = this.normalizeClerkPermissions(dto.permissions);
+    const clerk = this.userRepo.create({
+      name: dto.name,
+      email: dto.email,
+      password_hash,
+      role: 'KATIP',
+      courthouse_id: courthouseId,
+      permissions,
+      active: true,
+      created_by: managerId,
+    });
+    await this.userRepo.save(clerk);
+    const { password_hash: _, ...result } = clerk;
+    return result;
+  }
+
+  async updateClerk(id: string, dto: UpdateClerkDto, managerId: string, courthouseId?: string) {
+    const clerk = await this.findManagedClerk(id, managerId, courthouseId);
+    if (dto.name !== undefined) clerk.name = dto.name;
+    if (dto.email !== undefined) {
+      const existing = await this.userRepo.findOne({ where: { email: dto.email, deleted_at: IsNull() } });
+      if (existing && existing.id !== id) throw new ConflictException('EMAIL_EXISTS');
+      clerk.email = dto.email;
+    }
+    if (dto.password) clerk.password_hash = await bcrypt.hash(dto.password, 10);
+    if (dto.permissions !== undefined) clerk.permissions = this.normalizeClerkPermissions(dto.permissions);
+    if (dto.active !== undefined) clerk.active = dto.active;
+    clerk.updated_at = new Date();
+    await this.userRepo.save(clerk);
+    const { password_hash: _, ...result } = clerk;
+    return result;
+  }
+
+  async deleteClerk(id: string, managerId: string, courthouseId?: string) {
+    await this.findManagedClerk(id, managerId, courthouseId);
+    await this.userRepo.softDelete(id);
+    await this.assignmentRepo.delete({ clerk_id: id });
+    return { success: true };
+  }
+
+  async getClerkAssignments(id: string, managerId: string, courthouseId?: string) {
+    await this.findManagedClerk(id, managerId, courthouseId);
+    return this.assignmentRepo.find({ where: { clerk_id: id }, order: { created_at: 'DESC' } });
+  }
+
+  async updateClerkAssignments(
+    id: string,
+    dto: UpdateClerkAssignmentsDto,
+    managerId: string,
+    courthouseId?: string,
+  ) {
+    await this.findManagedClerk(id, managerId, courthouseId);
+    const allowedCourtIds = await this.getManagerCourtIds(managerId, courthouseId);
+    let caseIds = dto.case_file_ids || [];
+    let caseRows: Array<{ id: string; court_id: string }> = [];
+    let assignmentCourtId = dto.court_id;
+
+    if (dto.all_court_files) {
+      if (!assignmentCourtId && allowedCourtIds.length === 1) {
+        assignmentCourtId = allowedCourtIds[0];
+      }
+      if (!assignmentCourtId || !allowedCourtIds.includes(assignmentCourtId)) {
+        throw new ForbiddenException('Yalnızca müdürün bağlı olduğu mahkeme seçilebilir.');
+      }
+      caseRows = await this.userRepo.manager.query(
+        `SELECT id, court_id FROM case_files WHERE court_id = $1 AND deleted_at IS NULL`,
+        [assignmentCourtId],
+      );
+      caseIds = caseRows.map((row) => row.id);
+    }
+
+    if (caseIds.length > 0 && caseRows.length === 0) {
+      caseRows = await this.userRepo.manager.query(
+        `SELECT id, court_id FROM case_files WHERE id = ANY($1::uuid[]) AND deleted_at IS NULL`,
+        [caseIds],
+      );
+    }
+
+    if (caseIds.length > 0) {
+      if (caseRows.length !== caseIds.length || caseRows.some((row) => !allowedCourtIds.includes(row.court_id))) {
+        throw new ForbiddenException('Yalnızca müdürün bağlı olduğu mahkemelerin dosyaları atanabilir.');
+      }
+    }
+
+    await this.assignmentRepo.delete({ clerk_id: id });
+    if (caseIds.length === 0) return [];
+
+    const courtByCaseId = new Map(caseRows.map((row) => [row.id, row.court_id]));
+    const assignments = caseIds.map((case_file_id) => this.assignmentRepo.create({
+      clerk_id: id,
+      case_file_id,
+      court_id: courtByCaseId.get(case_file_id)!,
+      assigned_by: managerId,
+      created_by: managerId,
+    }));
+    return this.assignmentRepo.save(assignments);
+  }
+
+  private async findManagedClerk(id: string, managerId: string, courthouseId?: string) {
+    const clerk = await this.userRepo.findOne({
+      where: { id, role: 'KATIP', created_by: managerId, courthouse_id: courthouseId, deleted_at: IsNull() },
+    });
+    if (!clerk) throw new NotFoundException('Katip bulunamadı veya bu katibi yönetme yetkiniz yok.');
+    return clerk;
+  }
+
+  private normalizeClerkPermissions(permissions?: string[]) {
+    return (permissions || []).filter((permission): permission is typeof CLERK_MODULES[number] =>
+      (CLERK_MODULES as readonly string[]).includes(permission),
+    );
+  }
+  private async getManagerCourtIds(managerId: string, courthouseId?: string): Promise<string[]> {
+    const rows = await this.userRepo.manager.query(
+      `SELECT court_id FROM user_courts WHERE user_id = $1 AND deleted_at IS NULL`,
+      [managerId],
+    );
+    if (rows.length > 0) return rows.map((row: { court_id: string }) => row.court_id);
+    if (!courthouseId) return [];
+
+    const [courthouse] = await this.userRepo.manager.query(
+      `SELECT schema_name FROM public.courthouses WHERE id = $1`,
+      [courthouseId],
+    );
+    if (!courthouse?.schema_name || !/^[a-zA-Z0-9_]+$/.test(courthouse.schema_name)) return [];
+    const courtRows = await this.userRepo.manager.query(
+      `SELECT id FROM "${courthouse.schema_name}"."courts"`,
+    );
+    return courtRows.map((row: { id: string }) => row.id);
+  }
+
 }

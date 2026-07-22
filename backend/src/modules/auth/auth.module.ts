@@ -6,12 +6,13 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from './entities/user.entity';
+import { ClerkCaseAssignment } from './entities/clerk-case-assignment.entity';
 import { Courthouse } from '../tenant/entities/courthouse.entity';
 import { SystemSettingModule } from '../system-setting/system-setting.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Courthouse]),
+    TypeOrmModule.forFeature([User, Courthouse, ClerkCaseAssignment]),
     PassportModule,
     SystemSettingModule,
     JwtModule.register({

@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, Not } from 'typeorm';
 import { UserCourt } from '../user-court/entities/user-court.entity';
 import { Court } from '../court/entities/court.entity';
+import { ClerkCaseAssignment } from '../auth/entities/clerk-case-assignment.entity';
 
 const emptyWidget = { count: 0, items: [] as any[] };
 const emptyDashboard = {
@@ -18,6 +19,7 @@ const emptyDashboard = {
   recentActivity: emptyWidget,
   feeSummary: { totalCount: 0, totalAmount: 0, collectedAmount: 0, pendingAmount: 0, byStatus: {}, overdueItems: [] },
   serviceTracking: { items: [], byStatus: {}, totalCount: 0 },
+  appealStats: { totalCount: 0, istinafCount: 0, temyizCount: 0, pendingCount: 0, completedCount: 0, sentToUpperCourtCount: 0, items: [] },
 };
 
 @Controller('dashboard')
@@ -28,6 +30,7 @@ export class DashboardController {
     private dashboardService: DashboardService,
     @InjectRepository(UserCourt) private userCourtRepo: Repository<UserCourt>,
     @InjectRepository(Court) private courtRepo: Repository<Court>,
+    @InjectRepository(ClerkCaseAssignment) private assignmentRepo: Repository<ClerkCaseAssignment>,
   ) {}
 
   @Get()
@@ -40,6 +43,11 @@ export class DashboardController {
           where: { deleted_at: IsNull() },
         });
         courtIds = allCourts.map((c) => c.id);
+      } else if (user.role === 'KATIP') {
+        const assignments = await this.assignmentRepo.find({
+          where: { clerk_id: user.id, deleted_at: IsNull() },
+        });
+        courtIds = [...new Set(assignments.map((assignment) => assignment.court_id))];
       } else {
         const userCourts = await this.userCourtRepo.find({
           where: { user_id: user.id, deleted_at: IsNull() },

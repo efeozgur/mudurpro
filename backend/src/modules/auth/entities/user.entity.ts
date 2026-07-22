@@ -18,6 +18,8 @@ export class User extends BaseEntity {
 
   @Column({ type: 'uuid', nullable: true })
   courthouse_id!: string | null;
+  @Column({ type: 'jsonb', nullable: true, default: () => "'[]'::jsonb" })
+  permissions!: string[];
 
   @Column({ type: 'boolean', default: true })
   active!: boolean;

@@ -518,7 +518,7 @@ export default function CaseDetail() {
             )}
 
             {activeTab === 'appeals' && (
-              <AppealList caseFileId={id!} />
+              <AppealList caseFileId={id!} kanunYolu={data?.kanun_yolu || undefined} />
             )}
 
             {activeTab === 'fees' && (

@@ -47,9 +47,9 @@ interface Party {
 
 interface AppealListProps {
   caseFileId: string;
+  kanunYolu?: string;
 }
-
-export function AppealList({ caseFileId }: AppealListProps) {
+export function AppealList({ caseFileId, kanunYolu }: AppealListProps) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingAppeal, setEditingAppeal] = useState<Appeal | null>(null);
@@ -205,6 +205,7 @@ export function AppealList({ caseFileId }: AppealListProps) {
           </DialogHeader>
           <AppealAddForm
             caseFileId={caseFileId}
+            defaultType={kanunYolu}
             onSuccess={() => {
               setShowForm(false);
               queryClient.invalidateQueries({ queryKey: ['appeals', caseFileId] });
@@ -260,15 +261,22 @@ export function AppealList({ caseFileId }: AppealListProps) {
     </div>
   );
 }
+function kanunYoluToAppealType(kanunYolu?: string): string {
+  if (kanunYolu === 'İstinaf') return 'ISTINAF';
+  if (kanunYolu === 'Temyiz') return 'TEMYIZ';
+  return '';
+}
 
-function AppealAddForm({ caseFileId, onSuccess, onCancel }: {
+function AppealAddForm({ caseFileId, defaultType, onSuccess, onCancel }: {
   caseFileId: string;
+  defaultType?: string;
   onSuccess: () => void;
   onCancel: () => void;
 }) {
+  const preselectedType = kanunYoluToAppealType(defaultType);
   const [form, setForm] = useState({
     applicant_party_id: '',
-    type: '',
+    type: preselectedType,
     application_date: '',
     aciklama: '',
   });
@@ -350,9 +358,14 @@ function AppealAddForm({ caseFileId, onSuccess, onCancel }: {
           className="flex h-9 w-full rounded-[4px] border border-input bg-card px-3 py-1.5 text-sm"
           required
         >
-          <option value="">Seçiniz</option>
-          <option value="ISTINAF">İstinaf</option>
-          <option value="TEMYIZ">Temyiz</option>
+          {preselectedType
+            ? <option value={preselectedType}>{preselectedType === 'ISTINAF' ? 'İstinaf' : 'Temyiz'}</option>
+            : <>
+                <option value="">Seçiniz</option>
+                <option value="ISTINAF">İstinaf</option>
+                <option value="TEMYIZ">Temyiz</option>
+              </>
+          }
         </select>
       </div>
       <div className="space-y-2">

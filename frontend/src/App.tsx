@@ -12,7 +12,8 @@ import UserManagement from './pages/user-management';
 import NotificationCenter from './pages/notification-center';
 import AuditLogViewer from './pages/audit-log-viewer';
 import SystemSettings from './pages/system-settings';
-import Profile from './pages/profile';
+import Templates from './pages/templates';
+import Clerks from './pages/clerks';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -21,6 +22,7 @@ const queryClient = new QueryClient({
 function HomeRedirect() {
   const { user } = useAuth();
   if (user?.role === 'SUPER_ADMIN') return <Navigate to="/courthouses" replace />;
+  if (user?.role === 'KATIP') return <Navigate to={user.permissions?.includes('REPORTS') ? '/dashboard' : '/cases'} replace />;
   if (user?.role === 'ADLIYE_ADMIN') return <Navigate to="/courts" replace />;
   return <Navigate to="/dashboard" replace />;
 }
@@ -44,7 +46,8 @@ function App() {
               <Route path="/notifications" element={<NotificationCenter />} />
               <Route path="/audit" element={<AuditLogViewer />} />
               <Route path="/settings" element={<SystemSettings />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/clerks" element={<Clerks />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
