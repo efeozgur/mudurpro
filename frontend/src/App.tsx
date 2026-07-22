@@ -14,6 +14,7 @@ import AuditLogViewer from './pages/audit-log-viewer';
 import SystemSettings from './pages/system-settings';
 import Templates from './pages/templates';
 import Clerks from './pages/clerks';
+import Profile from './pages/profile';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -48,6 +49,7 @@ function App() {
               <Route path="/settings" element={<SystemSettings />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/clerks" element={<Clerks />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
