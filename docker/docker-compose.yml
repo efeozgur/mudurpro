@@ -4,9 +4,9 @@ services:
     environment:
       POSTGRES_DB: mudurpro
       POSTGRES_USER: mudurpro
-      POSTGRES_PASSWORD: mudurpro_secret
+      POSTGRES_PASSWORD: mudurpro_secret   # degistir
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -19,9 +19,9 @@ services:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@ozgurapp.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_PASSWORD: admin123      # degistir
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     depends_on:
       - db
 
@@ -30,10 +30,10 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.backend
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       DATABASE_URL: postgresql://mudurpro:mudurpro_secret@db:5432/mudurpro
-      JWT_SECRET: change-me-in-production
+      JWT_SECRET: degistir-benzeri-64-karakter
     depends_on:
       db:
         condition: service_healthy
@@ -45,7 +45,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.frontend
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     depends_on:
       - app
 
