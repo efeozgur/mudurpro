@@ -9,10 +9,16 @@ export class Courthouse extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
   city!: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  district!: string;
+
   @Index({ unique: true })
   @Column({ type: 'varchar', length: 100 })
   schema_name!: string;
 
   @Column({ type: 'boolean', default: true })
   active!: boolean;
+
+  @Column({ type: 'uuid', nullable: true })
+  connected_to!: string | null;
 }

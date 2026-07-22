@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 
+function getHomePath(role: string) {
+  if (role === 'SUPER_ADMIN') return '/courthouses';
+  if (role === 'ADLIYE_ADMIN') return '/courts';
+  return '/dashboard';
+}
+
 export default function Login() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
@@ -13,15 +19,15 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to={getHomePath(user.role)} replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const loggedInUser = await login(email, password);
+      navigate(getHomePath(loggedInUser.role));
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
       setError(msg);

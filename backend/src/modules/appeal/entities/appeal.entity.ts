@@ -19,5 +19,14 @@ export class Appeal extends BaseEntity {
   status!: string;
 
   @Column({ type: 'text', nullable: true })
+  result!: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  is_sent_to_upper_court!: boolean;
+
+  @Column({ type: 'date', nullable: true })
+  sent_to_upper_court_date!: Date | null;
+
+  @Column({ type: 'text', nullable: true })
   aciklama!: string | null;
 }

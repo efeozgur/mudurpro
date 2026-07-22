@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CaseFile } from '../case-file/entities/case-file.entity';
+import { Court } from '../court/entities/court.entity';
 import { Party } from '../party/entities/party.entity';
 import { ServiceRecord } from '../service-record/entities/service-record.entity';
 import { Appeal } from '../appeal/entities/appeal.entity';
+import { AppealResponse } from '../appeal/entities/appeal-response.entity';
 import { FeeTracking } from '../fee-tracking/entities/fee-tracking.entity';
 import { AuditLog } from '../audit-log/entities/audit-log.entity';
 import { UserCourt } from '../user-court/entities/user-court.entity';
@@ -13,7 +15,7 @@ import { DashboardService } from './dashboard.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CaseFile, Party, ServiceRecord, Appeal, FeeTracking, AuditLog, UserCourt]),
+    TypeOrmModule.forFeature([CaseFile, Court, Party, ServiceRecord, Appeal, AppealResponse, FeeTracking, AuditLog, UserCourt]),
     SureEngineModule,
   ],
   controllers: [DashboardController],

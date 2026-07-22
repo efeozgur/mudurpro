@@ -1,0 +1,159 @@
+<h2>MudurPro Dashboard — Önerilen Tasarım</h2>
+<p class="subtitle">Hibrit yaklaşım: Koyu sidebar + açık içerik, amber/lacivert vurgu, kurumsal-modern</p>
+
+<div class="mockup">
+  <div class="mockup-header">Dashboard (Müdür Paneli)</div>
+  <div class="mockup-body">
+    <div style="display:flex;height:500px;border-radius:8px;overflow:hidden;font-family:system-ui,sans-serif;font-size:12px;">
+      
+      <!-- Dark Sidebar -->
+      <div style="width:220px;background:#0f172a;color:#e2e8f0;padding:20px 0;display:flex;flex-direction:column;flex-shrink:0;">
+        <div style="padding:0 20px 24px;border-bottom:1px solid #1e293b;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#0f172a;">M</div>
+            <div>
+              <div style="font-weight:600;font-size:14px;color:#f8fafc;">MudurPro</div>
+              <div style="font-size:10px;color:#94a3b8;margin-top:1px;">Yazı İşleri Müdürü</div>
+            </div>
+          </div>
+        </div>
+        <nav style="flex:1;padding:0 12px;">
+          <div style="padding:8px 12px;margin-bottom:2px;border-radius:6px;background:rgba(245,158,11,0.15);color:#f59e0b;font-weight:500;font-size:12px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:14px;">&#9632;</span> Dashboard
+          </div>
+          <div style="padding:8px 12px;margin-bottom:2px;border-radius:6px;color:#94a3b8;font-weight:400;font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span style="font-size:14px;">&#9633;</span> Dosyalar
+          </div>
+          <div style="padding:8px 12px;margin-bottom:2px;border-radius:6px;color:#94a3b8;font-weight:400;font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span style="font-size:14px;">&#9633;</span> Bildirimler
+            <span style="margin-left:auto;background:#ef4444;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;">3</span>
+          </div>
+          <div style="padding:8px 12px;margin-bottom:2px;border-radius:6px;color:#94a3b8;font-weight:400;font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span style="font-size:14px;">&#9633;</span> Denetim
+          </div>
+        </nav>
+        <div style="padding:16px 20px;border-top:1px solid #1e293b;margin-top:auto;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;background:#334155;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:600;font-size:11px;">AM</div>
+            <div>
+              <div style="color:#e2e8f0;font-size:11px;">Ahmet Müdür</div>
+              <div style="color:#64748b;font-size:9px;">ahmet@adliye.gov.tr</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div style="flex:1;background:#f1f5f9;display:flex;flex-direction:column;">
+        
+        <!-- Header -->
+        <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-weight:600;font-size:16px;color:#0f172a;">Dashboard</div>
+            <div style="font-size:11px;color:#94a3b8;">Genel durum özeti ve kritik bildirimler</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button style="background:#f59e0b;color:#0f172a;border:none;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">+ Yeni Dosya</button>
+            <div style="position:relative;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;font-size:16px;">&#128276;</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div style="flex:1;padding:20px 24px;overflow-y:auto;">
+          
+          <!-- Stats Grid -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+            <div style="background:#fff;border-radius:8px;padding:14px;border-left:3px solid #ef4444;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Kritik Süreler</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;">7</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:14px;border-left:3px solid #f59e0b;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Bekleyen Tebligat</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;">12</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:14px;border-left:3px solid #10b981;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Kesinleşmeye Hazır</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;">3</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:14px;border-left:3px solid #3b82f6;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Harç Gereken</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;">5</div>
+            </div>
+          </div>
+
+          <!-- Suggestion Box -->
+          <div style="background:linear-gradient(135deg,#eff6ff,#fef3c7);border-radius:8px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;border:1px solid #dbeafe;">
+            <span style="font-size:18px;">&#8505;</span>
+            <div style="font-size:11px;color:#475569;">3 dosyada kritik süre aşımı riski var. Detaylı inceleme için ilgili dosyalara göz atın.</div>
+          </div>
+
+          <!-- Tables Row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-weight:600;font-size:12px;color:#0f172a;">Kritik Süreler</div>
+              <table style="width:100%;font-size:11px;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:10px 16px;color:#0f172a;">2024/123</td>
+                  <td style="padding:10px 16px;"><span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;">3 gün</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:10px 16px;color:#0f172a;">2024/456</td>
+                  <td style="padding:10px 16px;"><span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;">1 gün</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 16px;color:#0f172a;">2024/789</td>
+                  <td style="padding:10px 16px;"><span style="background:#fffbeb;color:#d97706;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;">5 gün</span></td>
+                </tr>
+              </table>
+            </div>
+            <div style="background:#fff;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-weight:600;font-size:12px;color:#0f172a;">Son İşlemler</div>
+              <div style="padding:12px 16px;font-size:11px;color:#475569;">
+                <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                  <span style="width:6px;height:6px;background:#10b981;border-radius:50%;"></span>
+                  Tebligat tamamlandı — 2024/123
+                </div>
+                <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                  <span style="width:6px;height:6px;background:#f59e0b;border-radius:50%;"></span>
+                  Harç ödemesi beklemede — 2024/456
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="width:6px;height:6px;background:#3b82f6;border-radius:50%;"></span>
+                  Yeni dosya oluşturuldu — 2024/890
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top:24px;">Bu tasarım yönü nasıl?</h3>
+<p class="subtitle">Koyu lacivert sidebar, açık içerik alanı, amber vurgu rengi, temiz tipografi.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Güzel, devam edelim</h3>
+      <p>Bu tasarım yönü istediğim gibi. Renk paletini ve detayları görmek istiyorum.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Biraz daha farklı olsun</h3>
+      <p>Sidebar daha açık / renkler daha koyu / daha farklı bir hava istiyorum.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Çok iyi, amber/navy onaylıyorum</h3>
+      <p>Renk paleti tamam. Diğer sayfalara (dosya listesi, detay) geçelim.</p>
+    </div>
+  </div>
+</div>

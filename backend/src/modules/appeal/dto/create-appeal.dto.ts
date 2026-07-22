@@ -1,8 +1,9 @@
 import { IsString, IsUUID, IsOptional, MaxLength, IsDateString } from 'class-validator';
 
 export class CreateAppealDto {
+  @IsOptional()
   @IsUUID()
-  case_file_id!: string;
+  case_file_id?: string;
 
   @IsUUID()
   applicant_party_id!: string;
@@ -18,6 +19,10 @@ export class CreateAppealDto {
   @IsString()
   @MaxLength(50)
   status?: string;
+
+  @IsOptional()
+  @IsString()
+  result?: string;
 
   @IsOptional()
   @IsString()

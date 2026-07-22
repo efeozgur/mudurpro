@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, ForbiddenException } from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,8 +23,11 @@ export class TenantInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const courthouse = await this.courthouseRepo.findOne({ where: { id: user.courthouseId, active: true } });
-    if (!courthouse) throw new ForbiddenException('TENANT_NOT_FOUND');
+    const courthouse = await this.courthouseRepo.findOne({ where: { id: user.courthouseId }, withDeleted: true });
+    if (!courthouse || !courthouse.active || courthouse.deleted_at) {
+      // Courthouse inactive/deleted — skip tenant interceptor, user may have limited access
+      return next.handle();
+    }
     await this.dataSource.query(`SET search_path TO "${courthouse.schema_name}", public`);
 
     return next.handle();

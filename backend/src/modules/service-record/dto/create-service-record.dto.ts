@@ -1,8 +1,9 @@
 import { IsString, IsUUID, IsOptional, MaxLength, IsDateString } from 'class-validator';
 
 export class CreateServiceRecordDto {
+  @IsOptional()
   @IsUUID()
-  case_file_id!: string;
+  case_file_id?: string;
 
   @IsUUID()
   party_id!: string;

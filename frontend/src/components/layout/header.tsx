@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, Plus, LogOut, User } from 'lucide-react';
+import { Menu, Bell, Plus, LogOut, User } from 'lucide-react';
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -32,16 +32,21 @@ export function Header() {
     user?.role === 'MUDUR' ? 'Müdür Paneli' : user?.role === 'ADLIYE_ADMIN' ? 'Adliye Yönetimi' : 'Sistem Yönetimi';
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card px-5 py-3.5">
-      <h2 className="text-[11px] font-medium text-muted-foreground tracking-wide uppercase">{roleLabel}</h2>
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-card px-4 md:px-6 py-3 md:py-4">
+      <div className="flex items-center gap-3">
+        <button onClick={onMenuClick} className="md:hidden text-muted-foreground hover:text-foreground">
+          <Menu className="h-5 w-5" />
+        </button>
+        <h2 className="text-sm font-serif font-semibold text-foreground tracking-tight">{roleLabel}</h2>
+      </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {user?.role === 'MUDUR' && (
           <button
             onClick={() => navigate('/cases?new=true')}
-            className="inline-flex items-center gap-1.5 rounded-[4px] bg-gradient-to-br from-gold to-gold-dark px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 rounded-[6px] bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:bg-[#BE4E37] active:bg-[#A33F2B] transition-colors shadow-sm"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Yeni Dosya</span>
           </button>
         )}
@@ -52,9 +57,9 @@ export function Header() {
           className="relative text-muted-foreground hover:text-foreground"
           onClick={() => navigate('/notifications')}
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-[18px] w-[18px]" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            <span className="absolute -right-0.5 -top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-destructive-foreground">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -62,14 +67,18 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md p-2 hover:bg-muted">
-            <User className="h-4 w-4 text-muted-foreground" />
+            <User className="h-[18px] w-[18px] text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-52">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <p className="text-[13px] font-medium">{user?.name}</p>
+              <p className="text-[12px] text-muted-foreground">{user?.email}</p>
             </div>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/profile')}>
+              <User className="h-4 w-4 mr-2" />
+              Profil
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={logout}>
               <LogOut className="h-4 w-4 mr-2" />
               Çıkış Yap

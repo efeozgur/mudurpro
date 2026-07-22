@@ -16,6 +16,9 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   role!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  courthouse_id!: string | null;
+
   @Column({ type: 'boolean', default: true })
   active!: boolean;
 }

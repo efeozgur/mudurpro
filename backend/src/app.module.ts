@@ -15,14 +15,15 @@ import { SureEngineModule } from './modules/sure-engine/sure-engine.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { SystemSettingModule } from './modules/system-setting/system-setting.module';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL || 'postgresql://mudurpro:mudurpro_secret@localhost:5432/mudurpro',
-      entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
+      url: process.env.DATABASE_URL || 'postgresql://mudurpro:mudurpro_secret@localhost:5433/mudurpro',
+      entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}', __dirname + '/common/entities/*.entity{.ts,.js}'],
       synchronize: true, // geliştirme için true, production'da false + migration
     }),
     TenantModule,
@@ -38,6 +39,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
     NotificationModule,
     AuditLogModule,
     DashboardModule,
+    SystemSettingModule,
   ],
   controllers: [AppController],
   providers: [

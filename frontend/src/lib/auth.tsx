@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import apiClient from './api-client';
 
 interface User {
@@ -6,12 +7,14 @@ interface User {
   email: string;
   role: string;
   name: string;
+  courthouse_id?: string;
+  courthouseId?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -20,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('access_token');
@@ -45,12 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await apiClient.post('/auth/login', { email, password });
     const { access_token, user: userData } = res.data.data;
     localStorage.setItem('access_token', access_token);
-    setUser(userData);
+    // Normalize: login returns camelCase, me returns snake_case
+    setUser({ ...userData, courthouse_id: userData.courthouse_id || userData.courthouseId || undefined });
+    return userData;
   };
 
   const logout = () => {
     localStorage.removeItem('access_token');
     setUser(null);
+    queryClient.clear();
   };
 
   return (

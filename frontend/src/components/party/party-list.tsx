@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -20,15 +20,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Users, Trash } from 'lucide-react';
 
 interface Party {
   id: string;
-  type: string;
-  name: string;
-  role: string;
-  status: string;
-  duplicate_warning: boolean;
+  case_file_id: string;
+  party_type: 'PERSON' | 'ORGANIZATION';
+  role: 'PLAINTIFF' | 'DEFENDANT';
+  first_name: string | null;
+  last_name: string | null;
+  organization_name: string | null;
+  national_id: string | null;
+  tax_number: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  is_active: boolean;
+  duplicate_warning?: boolean;
 }
 
 interface PartyListProps {
@@ -39,6 +47,7 @@ export function PartyList({ caseFileId }: PartyListProps) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmParty, setDeleteConfirmParty] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<Party[]>({
     queryKey: ['parties', caseFileId],
@@ -46,6 +55,11 @@ export function PartyList({ caseFileId }: PartyListProps) {
       const res = await apiClient.get(`/cases/${caseFileId}/parties`);
       return res.data.data;
     },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiClient.delete(`/parties/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['parties', caseFileId] }),
   });
 
   if (isLoading) return <LoadingSpinner />;
@@ -68,32 +82,56 @@ export function PartyList({ caseFileId }: PartyListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ad</TableHead>
+              <TableHead>Ad / Kurum Ünvanı</TableHead>
               <TableHead>Tür</TableHead>
               <TableHead>Rol</TableHead>
               <TableHead>Durum</TableHead>
-              <TableHead></TableHead>
+              <TableHead className="text-right">İşlemler</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {parties.map((party) => (
-              <TableRow key={party.id}>
-                <TableCell className="font-medium">
-                  {party.name}
-                  {party.duplicate_warning && (
-                    <span className="ml-2 text-xs text-amber-600">(Muhtemel mükerrer)</span>
-                  )}
-                </TableCell>
-                <TableCell>{party.type === 'PERSON' ? 'Gerçek Kişi' : 'Tüzel Kişi'}</TableCell>
-                <TableCell>{party.role}</TableCell>
-                <TableCell><StatusBadge status={party.status} /></TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="xs" onClick={() => { setEditingId(party.id); setShowForm(true); }}>
-                    Düzenle
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {parties.map((party) => {
+              const name = party.party_type === 'PERSON' 
+                ? `${party.first_name || ''} ${party.last_name || ''}`.trim() 
+                : party.organization_name || 'Ünvansız Kurum';
+
+              return (
+                <TableRow key={party.id}>
+                  <TableCell className="font-medium">
+                    {name}
+                    {party.duplicate_warning && (
+                      <span className="ml-2 text-xs text-amber-600">(Muhtemel mükerrer)</span>
+                    )}
+                  </TableCell>
+                  <TableCell>{party.party_type === 'PERSON' ? 'Gerçek Kişi' : 'Tüzel Kişi'}</TableCell>
+                  <TableCell>
+                    {party.role === 'PLAINTIFF' ? 'Davacı' : party.role === 'DEFENDANT' ? 'Davalı' : party.role}
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={party.is_active ? 'ACTIVE' : 'ARCHIVED'} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end items-center gap-2">
+                      <Button variant="ghost" size="xs" onClick={() => { setEditingId(party.id); setShowForm(true); }}>
+                        Düzenle
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="xs" 
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          setDeleteConfirmParty(party.id)
+                        }}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash className="h-3 w-3 mr-1" />
+                        Sil
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}
@@ -113,6 +151,28 @@ export function PartyList({ caseFileId }: PartyListProps) {
             }}
             onCancel={() => { setShowForm(false); setEditingId(null); }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteConfirmParty} onOpenChange={() => setDeleteConfirmParty(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Tarafı Sil</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-[12px] text-muted-foreground">Bu tarafı silmek istediğinize emin misiniz?</p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" size="sm" onClick={() => setDeleteConfirmParty(null)}>İptal</Button>
+              <Button size="sm" className="bg-destructive hover:bg-destructive/90"
+                disabled={deleteMutation.isPending}
+                onClick={() => {
+                  if (deleteConfirmParty) deleteMutation.mutate(deleteConfirmParty, { onSuccess: () => setDeleteConfirmParty(null) });
+                }}
+              >
+                {deleteMutation.isPending ? 'Siliniyor...' : 'Sil'}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

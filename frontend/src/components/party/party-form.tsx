@@ -8,13 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const partySchema = z.object({
-  party_type: z.enum(['REAL', 'TUZEL']),
+  party_type: z.enum(['PERSON', 'ORGANIZATION']),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
   organization_name: z.string().optional(),
   role: z.string().min(1, 'Rol zorunludur'),
-  national_id: z.string().optional(),
-  tax_number: z.string().optional(),
+  national_id: z.string().max(11, 'TC Kimlik numarası en fazla 11 karakter olabilir').optional().or(z.literal('')),
+  tax_number: z.string().max(10, 'Vergi numarası en fazla 10 karakter olabilir').optional().or(z.literal('')),
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email('Geçerli e-posta girin').optional().or(z.literal('')),
@@ -41,7 +41,7 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
   } = useForm<PartyFormValues>({
     resolver: zodResolver(partySchema),
     defaultValues: {
-      party_type: 'REAL', first_name: '', last_name: '', organization_name: '',
+      party_type: 'PERSON', first_name: '', last_name: '', organization_name: '',
       role: '', national_id: '', tax_number: '', address: '', phone: '', email: '',
     },
   });
@@ -53,8 +53,9 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
       setLoading(true);
       apiClient.get(`/parties/${partyId}`).then((res) => {
         const p = res.data.data;
+        const mappedType = p.party_type === 'REAL' ? 'PERSON' : p.party_type === 'TUZEL' ? 'ORGANIZATION' : p.party_type || 'PERSON';
         reset({
-          party_type: p.party_type || p.type || 'REAL',
+          party_type: mappedType as 'PERSON' | 'ORGANIZATION',
           first_name: p.first_name || '',
           last_name: p.last_name || '',
           organization_name: p.organization_name || '',
@@ -86,12 +87,12 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
       <div className="space-y-2">
         <Label>Tür</Label>
         <select {...register('party_type')} className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm">
-          <option value="REAL">Gerçek Kişi</option>
-          <option value="TUZEL">Tüzel Kişi</option>
+          <option value="PERSON">Gerçek Kişi</option>
+          <option value="ORGANIZATION">Tüzel Kişi</option>
         </select>
       </div>
 
-      {partyType === 'REAL' ? (
+      {partyType === 'PERSON' ? (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="first_name">Ad</Label>
@@ -110,20 +111,30 @@ export function PartyForm({ caseFileId, partyId, onSuccess, onCancel }: PartyFor
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="role">Rol * (Örn: Davacı, Davalı)</Label>
-        <Input id="role" {...register('role')} placeholder="Davacı" />
+        <Label htmlFor="role">Rol *</Label>
+        <select
+          id="role"
+          {...register('role')}
+          className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm"
+        >
+          <option value="">Seçiniz</option>
+          <option value="PLAINTIFF">Davacı</option>
+          <option value="DEFENDANT">Davalı</option>
+        </select>
         {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
       </div>
 
-      {partyType === 'REAL' ? (
+      {partyType === 'PERSON' ? (
         <div className="space-y-2">
           <Label htmlFor="national_id">TC Kimlik No</Label>
-          <Input id="national_id" {...register('national_id')} placeholder="11111111111" />
+          <Input id="national_id" {...register('national_id')} placeholder="11111111111" maxLength={11} />
+          {errors.national_id && <p className="text-sm text-destructive">{errors.national_id.message}</p>}
         </div>
       ) : (
         <div className="space-y-2">
           <Label htmlFor="tax_number">Vergi No</Label>
-          <Input id="tax_number" {...register('tax_number')} placeholder="1234567890" />
+          <Input id="tax_number" {...register('tax_number')} placeholder="1234567890" maxLength={10} />
+          {errors.tax_number && <p className="text-sm text-destructive">{errors.tax_number.message}</p>}
         </div>
       )}
 

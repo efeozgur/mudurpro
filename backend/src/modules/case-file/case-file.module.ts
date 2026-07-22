@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CaseFile } from './entities/case-file.entity';
+import { Appeal } from '../appeal/entities/appeal.entity';
+import { UserCourt } from '../user-court/entities/user-court.entity';
 import { CaseFileController } from './case-file.controller';
 import { CaseFileService } from './case-file.service';
+import { SureEngineModule } from '../sure-engine/sure-engine.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CaseFile])],
+  imports: [TypeOrmModule.forFeature([CaseFile, Appeal, UserCourt]), SureEngineModule],
   controllers: [CaseFileController],
   providers: [CaseFileService],
   exports: [CaseFileService],

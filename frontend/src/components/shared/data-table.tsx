@@ -24,6 +24,7 @@ interface DataTableProps<T> {
   data: T[];
   searchPlaceholder?: string;
   onRowClick?: (item: T) => void;
+  rowClassName?: (item: T) => string;
   page?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
@@ -35,6 +36,7 @@ export function DataTable<T extends Record<string, unknown> | object>({
   data,
   searchPlaceholder = 'Ara...',
   onRowClick,
+  rowClassName,
   page = 1,
   totalPages = 1,
   onPageChange,
@@ -78,13 +80,13 @@ export function DataTable<T extends Record<string, unknown> | object>({
 
   return (
     <div className="space-y-3">
-      <div className="relative max-w-[250px]">
-        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative max-w-[240px]">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder={searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 text-[13px]"
+          className="pl-9 text-[13px] h-9"
         />
       </div>
 
@@ -92,7 +94,7 @@ export function DataTable<T extends Record<string, unknown> | object>({
         <div className="text-center py-8 text-muted-foreground text-sm">Yükleniyor...</div>
       ) : (
         <>
-          <div className="rounded-[6px] border border-border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-[8px] border border-border bg-card overflow-hidden shadow-[0_1px_3px_0_rgba(25,22,21,0.04)]">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -123,7 +125,7 @@ export function DataTable<T extends Record<string, unknown> | object>({
                   sorted.map((item, i) => (
                     <TableRow
                       key={i}
-                      className={onRowClick ? 'cursor-pointer' : ''}
+                      className={`${onRowClick ? 'cursor-pointer' : ''} ${i % 2 === 0 ? 'bg-background' : 'bg-card'} ${rowClassName ? rowClassName(item) : ''}`}
                       onClick={() => onRowClick?.(item)}
                     >
                       {columns.map((col) => (
@@ -139,15 +141,15 @@ export function DataTable<T extends Record<string, unknown> | object>({
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[12px] text-muted-foreground">
                 Toplam {totalPages} sayfa
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <Button variant="outline" size="sm" onClick={() => onPageChange?.(page - 1)} disabled={page <= 1}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="inline-flex items-center justify-center h-7 w-7 rounded-[3px] bg-navy text-white text-[11px] font-medium">
+                <span className="inline-flex items-center justify-center h-7 min-w-[28px] rounded-[4px] bg-primary text-primary-foreground text-[12px] font-semibold px-2">
                   {page}
                 </span>
                 <Button variant="outline" size="sm" onClick={() => onPageChange?.(page + 1)} disabled={page >= totalPages}>

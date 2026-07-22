@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,22 +27,15 @@ interface CaseFileFormProps {
 }
 
 export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFormProps) {
-  const { data: courts } = useQuery<{ id: string; name: string }[]>({
-    queryKey: ['courts'],
-    queryFn: async () => {
-      const res = await apiClient.get('/courts');
-      return res.data.data || [];
-    },
-  });
-
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CaseFileFormValues>({
     resolver: zodResolver(caseFileSchema),
     defaultValues: {
-      court_id: defaultValues?.court_id || (courts && courts.length === 1 ? courts[0].id : ''),
+      court_id: defaultValues?.court_id || '',
       esas_no: defaultValues?.esas_no || '',
       karar_no: defaultValues?.karar_no || '',
       karar_tarihi: defaultValues?.karar_tarihi || '',
@@ -50,6 +44,28 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
       aciklama: defaultValues?.aciklama || '',
     },
   });
+
+  const { data: courts } = useQuery<{ id: string; name: string; courthouse_name?: string }[]>({
+    queryKey: ['courts'],
+    queryFn: async () => {
+      const res = await apiClient.get('/courts');
+      return res.data.data || [];
+    },
+  });
+
+  useEffect(() => {
+    if (courts && courts.length > 0) {
+      reset({
+        court_id: defaultValues?.court_id || (courts.length === 1 ? courts[0].id : ''),
+        esas_no: defaultValues?.esas_no || '',
+        karar_no: defaultValues?.karar_no || '',
+        karar_tarihi: defaultValues?.karar_tarihi || '',
+        karar_sonucu: defaultValues?.karar_sonucu || '',
+        kanun_yolu: defaultValues?.kanun_yolu || '',
+        aciklama: defaultValues?.aciklama || '',
+      });
+    }
+  }, [courts, defaultValues, reset]);
 
   const onSubmit = async (values: CaseFileFormValues) => {
     const payload = {
@@ -67,7 +83,7 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {courts && courts.length > 1 && (
+      {courts && courts.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="court_id">Mahkeme *</Label>
           <select
@@ -75,10 +91,16 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
             {...register('court_id')}
             className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
           >
-            <option value="">Seçiniz</option>
-            {courts.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
+            {courts.length === 1 ? (
+              <option value={courts[0].id}>{courts[0].name}</option>
+            ) : (
+              <>
+                <option value="">Seçiniz</option>
+                {courts.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </>
+            )}
           </select>
           {errors.court_id && <p className="text-sm text-destructive">{errors.court_id.message}</p>}
         </div>
@@ -106,12 +128,30 @@ export function CaseFileForm({ defaultValues, onSuccess, onCancel }: CaseFileFor
 
       <div className="space-y-2">
         <Label htmlFor="karar_sonucu">Karar Sonucu</Label>
-        <Input id="karar_sonucu" {...register('karar_sonucu')} placeholder="Karar sonucu..." />
+        <select
+          id="karar_sonucu"
+          {...register('karar_sonucu')}
+          className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm"
+        >
+          <option value="">Seçiniz</option>
+          <option value="Kabul">Kabul</option>
+          <option value="Red">Red</option>
+          <option value="Kısmen kabul kısmen red">Kısmen kabul kısmen red</option>
+        </select>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="kanun_yolu">Kanun Yolu</Label>
-        <Input id="kanun_yolu" {...register('kanun_yolu')} placeholder="Örn: İstinaf" />
+        <select
+          id="kanun_yolu"
+          {...register('kanun_yolu')}
+          className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm"
+        >
+          <option value="">Seçiniz</option>
+          <option value="İstinaf">İstinaf</option>
+          <option value="Temyiz">Temyiz</option>
+          <option value="Kesin karar">Kesin karar</option>
+        </select>
       </div>
 
       <div className="space-y-2">

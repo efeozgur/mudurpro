@@ -22,6 +22,7 @@ export class PartyService {
   }
 
   async create(dto: CreatePartyDto) {
+    this.normalizeParty(dto);
     const warning = await this.checkDuplicate(dto);
     const entity = this.repo.create(dto);
     const saved = await this.repo.save(entity);
@@ -29,9 +30,29 @@ export class PartyService {
   }
 
   async update(id: string, dto: UpdatePartyDto) {
+    this.normalizeParty(dto);
     const entity = await this.findById(id);
     Object.assign(entity, dto, { updated_at: new Date() });
     return this.repo.save(entity);
+  }
+
+  private normalizeParty(dto: any) {
+    if (dto.party_type) {
+      const typeUpper = dto.party_type.toUpperCase();
+      if (typeUpper === 'REAL' || typeUpper === 'PERSON' || typeUpper === 'GERÇEK' || typeUpper === 'GERCEK') {
+        dto.party_type = 'PERSON';
+      } else if (typeUpper === 'TÜZEL' || typeUpper === 'TUZEL' || typeUpper === 'ORGANIZATION') {
+        dto.party_type = 'ORGANIZATION';
+      }
+    }
+    if (dto.role) {
+      const roleUpper = dto.role.toUpperCase();
+      if (roleUpper.includes('DAVACI') || roleUpper === 'PLAINTIFF') {
+        dto.role = 'PLAINTIFF';
+      } else if (roleUpper.includes('DAVALI') || roleUpper === 'DEFENDANT') {
+        dto.role = 'DEFENDANT';
+      }
+    }
   }
 
   async deactivate(id: string, reason: string) {
@@ -47,6 +68,12 @@ export class PartyService {
     entity.is_active = true;
     entity.removal_reason = null;
     entity.updated_at = new Date();
+    return this.repo.save(entity);
+  }
+
+  async remove(id: string) {
+    const entity = await this.findById(id);
+    entity.deleted_at = new Date();
     return this.repo.save(entity);
   }
 

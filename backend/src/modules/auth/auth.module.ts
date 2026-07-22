@@ -6,11 +6,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from './entities/user.entity';
+import { Courthouse } from '../tenant/entities/courthouse.entity';
+import { SystemSettingModule } from '../system-setting/system-setting.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Courthouse]),
     PassportModule,
+    SystemSettingModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'dev-secret-change-me',
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '8h' },

@@ -1,8 +1,9 @@
 import { IsString, IsUUID, IsOptional, MaxLength, IsNumber, Min, IsDateString } from 'class-validator';
 
 export class CreateFeeTrackingDto {
+  @IsOptional()
   @IsUUID()
-  case_file_id!: string;
+  case_file_id?: string;
 
   @IsUUID()
   debtor_party_id!: string;

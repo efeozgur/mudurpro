@@ -4,11 +4,12 @@ import { CaseFile } from '../case-file/entities/case-file.entity';
 import { Party } from '../party/entities/party.entity';
 import { ServiceRecord } from '../service-record/entities/service-record.entity';
 import { Appeal } from '../appeal/entities/appeal.entity';
+import { AppealResponse } from '../appeal/entities/appeal-response.entity';
 import { FeeTracking } from '../fee-tracking/entities/fee-tracking.entity';
 import { SureEngineService } from './sure-engine.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CaseFile, Party, ServiceRecord, Appeal, FeeTracking])],
+  imports: [TypeOrmModule.forFeature([CaseFile, Party, ServiceRecord, Appeal, AppealResponse, FeeTracking])],
   providers: [SureEngineService],
   exports: [SureEngineService],
 })

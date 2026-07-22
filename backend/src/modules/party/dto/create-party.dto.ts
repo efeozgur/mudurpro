@@ -1,8 +1,9 @@
-import { IsString, IsUUID, IsOptional, MaxLength, IsBoolean, IsEmail } from 'class-validator';
+import { IsString, IsUUID, IsOptional, MaxLength, IsBoolean, IsEmail, ValidateIf } from 'class-validator';
 
 export class CreatePartyDto {
+  @IsOptional()
   @IsUUID()
-  case_file_id!: string;
+  case_file_id?: string;
 
   @IsString()
   @MaxLength(20)
@@ -29,7 +30,7 @@ export class CreatePartyDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(11)
   national_id?: string;
 
   @IsOptional()
@@ -43,6 +44,7 @@ export class CreatePartyDto {
   phone?: string;
 
   @IsOptional()
+  @ValidateIf((o) => o.email !== '')
   @IsEmail()
   email?: string;
 

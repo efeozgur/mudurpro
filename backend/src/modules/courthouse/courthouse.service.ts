@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { Courthouse } from '../tenant/entities/courthouse.entity';
@@ -27,5 +27,12 @@ export class CourthouseService {
   async update(id: string, dto: UpdateCourthouseDto) {
     await this.repo.update(id, { ...dto, updated_at: new Date() });
     return this.repo.findOne({ where: { id, deleted_at: IsNull() } });
+  }
+
+  async remove(id: string) {
+    const ch = await this.repo.findOne({ where: { id, deleted_at: IsNull() } });
+    if (!ch) throw new NotFoundException('Adliye bulunamadı.');
+    await this.repo.softDelete(id);
+    return { success: true };
   }
 }

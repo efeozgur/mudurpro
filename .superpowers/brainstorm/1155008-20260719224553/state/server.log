@@ -1,0 +1,9 @@
+{"type":"server-started","port":53539,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:53539/?key=8c53db8f107c23f30f870893b4f7dff2e6fbdc9291442f29c70375725807d1f8","screen_dir":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content","state_dir":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\state","idle_timeout_ms":14400000}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\dashboard-layout.html"}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\style-options.html"}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\cases-detail.html"}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\waiting.html"}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\login-users.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Evet, hepsini onaylıyorum\n      Tüm sayfalar (dashboard, dosya listesi, dosya detay, login, kullanıcı yönetimi) bu tasarım diliyle uygulansın. Yazılı tasarım dokümanına geçelim.","choice":"a","id":null,"timestamp":1784490747577}
+{"type":"screen-added","file":"C:\\Users\\ahmet\\Desktop\\AktifProjeler\\mdrpro\\.superpowers\\brainstorm\\1155008-20260719224553\\content\\waiting2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

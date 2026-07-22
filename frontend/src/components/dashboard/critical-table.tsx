@@ -29,10 +29,10 @@ export function CriticalTable({ items, title }: CriticalTableProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="rounded-[6px] border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden premium-shadow glass-panel">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
         <AlertTriangle className="h-3.5 w-3.5 text-gold" />
-        <h3 className="text-xs font-semibold text-foreground font-[family-name:Georgia,serif]">{title}</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
       </div>
       <Table>
         <TableHeader>

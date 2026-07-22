@@ -27,4 +27,7 @@ export class CaseFile extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   aciklama!: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  finalized_at!: Date | null;
 }
