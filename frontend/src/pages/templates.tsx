@@ -359,9 +359,9 @@ export default function Templates() {
                   </div>
                 </div>
               </div>
-              <div className="overflow-y-auto bg-[#f4f1eb] px-4 py-6 sm:px-10">
+              <div className="min-w-0 overflow-y-auto overflow-x-hidden bg-[#f4f1eb] px-4 py-6 sm:px-10">
                 <article
-                  className="mx-auto min-h-[420px] max-w-[760px] rounded-sm border border-[#e5dfd5] bg-white px-6 py-8 text-[14px] leading-7 text-[#302b27] shadow-[0_8px_30px_rgba(50,40,30,0.08)] sm:px-12 sm:py-10 [&_h1]:mb-5 [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_li]:ml-6 [&_li]:mb-1 [&_ol]:list-decimal [&_p]:mb-4 [&_ul]:list-disc"
+                  className="mx-auto min-h-[260px] w-full max-w-[760px] min-w-0 overflow-hidden rounded-sm border border-[#e5dfd5] bg-white px-6 py-7 text-[14px] leading-7 text-[#302b27] shadow-[0_4px_18px_rgba(50,40,30,0.06)] [overflow-wrap:anywhere] sm:px-12 sm:py-8 [&_h1]:mb-5 [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_li]:ml-6 [&_li]:mb-1 [&_ol]:list-decimal [&_p]:mb-4 [&_ul]:list-disc"
                   dangerouslySetInnerHTML={{ __html: sanitizedTemplateContent(previewTemplate.content) }}
                 />
               </div>
