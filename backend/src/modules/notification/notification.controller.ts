@@ -51,4 +51,9 @@ export class NotificationController {
   async markComplete(@Param('id') id: string) {
     return { success: true, data: await this.service.markComplete(id), message: null };
   }
+  @Patch(':id/delete')
+  async deleteRead(@Param('id') id: string, @CurrentUser() user: any) {
+    await this.service.deleteRead(id, user.id);
+    return { success: true, data: null, message: null };
+  }
 }

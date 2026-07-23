@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Bell, CheckCheck, Eye, Check } from 'lucide-react';
+import { Bell, CheckCheck, Eye, Check, Trash2 } from 'lucide-react';
 
 interface Notification {
   id: string;
@@ -46,6 +46,13 @@ export default function NotificationCenter() {
   const markComplete = useMutation({
     mutationFn: (id: string) => apiClient.patch(`/notifications/${id}/complete`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+  const deleteRead = useMutation({
+    mutationFn: (id: string) => apiClient.patch(`/notifications/${id}/delete`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+    },
   });
 
   if (isLoading) return <LoadingSpinner />;
@@ -94,7 +101,7 @@ export default function NotificationCenter() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    {n.status === 'UNREAD' && (
+                    {n.status === 'CREATED' && (
                       <Button variant="ghost" size="xs" onClick={() => markRead.mutate(n.id)} title="Okundu">
                         <Eye className="h-3 w-3" />
                       </Button>
@@ -102,6 +109,11 @@ export default function NotificationCenter() {
                     {n.status !== 'COMPLETED' && (
                       <Button variant="ghost" size="xs" onClick={() => markComplete.mutate(n.id)} title="Tamamlandı">
                         <Check className="h-3 w-3" />
+                      </Button>
+                    )}
+                    {n.status === 'READ' && (
+                      <Button variant="ghost" size="xs" onClick={() => deleteRead.mutate(n.id)} title="Bildirimi sil">
+                        <Trash2 className="h-3 w-3 text-destructive" />
                       </Button>
                     )}
                     {n.case_file_id && (

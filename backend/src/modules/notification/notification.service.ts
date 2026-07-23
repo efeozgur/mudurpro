@@ -112,6 +112,14 @@ export class NotificationService {
     return this.repo.save(entity);
   }
 
+  async deleteRead(id: string, userId: string): Promise<void> {
+    const entity = await this.repo.findOne({
+      where: { id, user_id: userId, status: 'READ', deleted_at: IsNull() },
+    });
+    if (!entity) throw new NotFoundException('Okunmuş bildirim bulunamadı');
+    await this.repo.softRemove(entity);
+  }
+
   async markComplete(id: string): Promise<Notification> {
     const entity = await this.repo.findOne({ where: { id, deleted_at: IsNull() } });
     if (!entity) throw new NotFoundException('Notification not found');
