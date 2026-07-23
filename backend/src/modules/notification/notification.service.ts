@@ -17,6 +17,8 @@ export class NotificationService {
     @InjectRepository(Court) private courtRepo: Repository<Court>,
     private sureEngine: SureEngineService,
   ) {}
+  async createNotification(userId: string, dto: CreateNotificationDto): Promise<Notification> {
+    const qb = this.repo.createQueryBuilder('n')
       .where('n.user_id = :userId', { userId })
       .andWhere('n.type = :type', { type: dto.type })
       .andWhere('n.deleted_at IS NULL');
