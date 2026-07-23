@@ -5,15 +5,16 @@ import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { SureEngineService, SureResult } from '../sure-engine/sure-engine.service';
 import { User } from '../auth/entities/user.entity';
+import { CaseFile } from '../case-file/entities/case-file.entity';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(Notification) private repo: Repository<Notification>,
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(CaseFile) private caseFileRepo: Repository<CaseFile>,
     private sureEngine: SureEngineService,
   ) {}
-
   async createNotification(userId: string, dto: CreateNotificationDto): Promise<Notification> {
     const qb = this.repo.createQueryBuilder('n')
       .where('n.user_id = :userId', { userId })
@@ -54,8 +55,20 @@ export class NotificationService {
           : `Sürenin dolmasına ${entry.remainingDays} gün kaldı.`,
       });
     }
+    const appealCases = await this.caseFileRepo.find({
+      where: { court_id: user.courthouse_id, deleted_at: IsNull() },
+    });
+    for (const caseFile of appealCases.filter((item) => item.kanun_yolu)) {
+      await this.createNotification(userId, {
+        user_id: userId,
+        case_file_id: caseFile.id,
+        type: 'KANUN_YOLU',
+        priority: 'P2',
+        title: `Kanun yolu: ${caseFile.esas_no}`,
+        description: `${caseFile.kanun_yolu} dosyası için kanun yolu işlemlerini kontrol edin.`,
+      });
+    }
   }
-
   async findByUser(
     userId: string,
     filters?: { type?: string; priority?: string; status?: string; page?: number; limit?: number },
