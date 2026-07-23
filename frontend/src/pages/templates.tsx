@@ -338,30 +338,40 @@ export default function Templates() {
       </Dialog>
       {/* Preview Modal */}
       <Dialog open={!!previewTemplate} onOpenChange={(open) => { if (!open) setPreviewTemplate(null); }}>
-        <DialogContent className="w-[92vw] !max-w-[900px] max-h-[92vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{previewTemplate?.title || 'Şablon Önizleme'}</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="w-[94vw] !max-w-[980px] overflow-hidden p-0">
           {previewTemplate && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <StatusBadge status={categoryLabels[previewTemplate.category] ?? previewTemplate.category} />
-                <span>{visibilityLabels[previewTemplate.visibility]?.label}</span>
+            <div className="flex max-h-[88vh] flex-col">
+              <div className="border-b border-border bg-muted/30 px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">Şablon önizleme</p>
+                    <DialogHeader className="text-left">
+                      <DialogTitle className="truncate text-xl font-semibold tracking-tight">{previewTemplate.title}</DialogTitle>
+                    </DialogHeader>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                    <span className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-foreground">
+                      {categoryLabels[previewTemplate.category] ?? previewTemplate.category}
+                    </span>
+                    <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
+                      {visibilityLabels[previewTemplate.visibility]?.label}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div
-                className="min-h-[300px] rounded-[4px] border border-border bg-card p-5 text-sm leading-6 [&_h1]:mb-3 [&_h1]:text-2xl [&_h2]:mb-3 [&_h2]:text-xl [&_h3]:mb-2 [&_h3]:text-lg [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
-                dangerouslySetInnerHTML={{ __html: sanitizedTemplateContent(previewTemplate.content) }}
-              />
-            <div className="flex justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => void handleCopy(previewTemplate)}
-              >
-                <Copy className="mr-1.5 h-3.5 w-3.5" />
-                {copiedTemplateId === previewTemplate.id ? 'Kopyalandı' : 'Kopyala'}
-              </Button>
-            </div>
+              <div className="overflow-y-auto bg-[#f4f1eb] px-4 py-6 sm:px-10">
+                <article
+                  className="mx-auto min-h-[420px] max-w-[760px] rounded-sm border border-[#e5dfd5] bg-white px-6 py-8 text-[14px] leading-7 text-[#302b27] shadow-[0_8px_30px_rgba(50,40,30,0.08)] sm:px-12 sm:py-10 [&_h1]:mb-5 [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_li]:ml-6 [&_li]:mb-1 [&_ol]:list-decimal [&_p]:mb-4 [&_ul]:list-disc"
+                  dangerouslySetInnerHTML={{ __html: sanitizedTemplateContent(previewTemplate.content) }}
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3 border-t border-border bg-card px-6 py-4">
+                <p className="text-[11px] text-muted-foreground">İçerik yalnızca önizleme amacıyla gösterilmektedir.</p>
+                <Button size="sm" onClick={() => void handleCopy(previewTemplate)}>
+                  <Copy className="mr-1.5 h-3.5 w-3.5" />
+                  {copiedTemplateId === previewTemplate.id ? 'Kopyalandı' : 'İçeriği Kopyala'}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
