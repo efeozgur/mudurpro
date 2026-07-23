@@ -77,7 +77,6 @@ export class NotificationService {
     userId: string,
     filters?: { type?: string; priority?: string; status?: string; page?: number; limit?: number },
   ) {
-    await this.syncCriticalNotifications(userId);
     const where: any = { user_id: userId, deleted_at: IsNull() };
     if (filters?.type) where.type = filters.type;
     if (filters?.priority) where.priority = filters.priority;
@@ -97,7 +96,6 @@ export class NotificationService {
   }
 
   async findUnread(userId: string) {
-    await this.syncCriticalNotifications(userId);
     return this.repo.find({
       where: { user_id: userId, status: 'CREATED', deleted_at: IsNull() },
       order: { created_at: 'DESC' },
