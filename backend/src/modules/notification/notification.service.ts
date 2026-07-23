@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { SureResult } from '../sure-engine/sure-engine.service';
+import { SureEngineService, SureResult } from '../sure-engine/sure-engine.service';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(Notification) private repo: Repository<Notification>,
+    @InjectRepository(User) private userRepo: Repository<User>,
+    private sureEngine: SureEngineService,
   ) {}
 
   async createNotification(userId: string, dto: CreateNotificationDto): Promise<Notification> {
@@ -33,10 +36,31 @@ export class NotificationService {
     return this.repo.save(entity);
   }
 
+  private async syncCriticalNotifications(userId: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { id: userId, deleted_at: IsNull() } });
+    if (!user?.courthouse_id) return;
+    const entries = await this.sureEngine.getKritikSures([user.courthouse_id]);
+    for (const entry of entries) {
+      await this.createNotification(userId, {
+        user_id: userId,
+        case_file_id: entry.caseId,
+        type: entry.status,
+        priority: entry.status === 'GECMIS' || entry.status === 'KRITIK' ? 'P1' : 'P2',
+        title: entry.status === 'READY_FOR_APPEAL_TRANSFER'
+          ? `Kanun yolu işlemi: ${entry.esasNo}`
+          : `Kritik süre: ${entry.esasNo}`,
+        description: entry.remainingDays < 0
+          ? `Süre ${Math.abs(entry.remainingDays)} gün önce doldu.`
+          : `Sürenin dolmasına ${entry.remainingDays} gün kaldı.`,
+      });
+    }
+  }
+
   async findByUser(
     userId: string,
     filters?: { type?: string; priority?: string; status?: string; page?: number; limit?: number },
   ) {
+    await this.syncCriticalNotifications(userId);
     const where: any = { user_id: userId, deleted_at: IsNull() };
     if (filters?.type) where.type = filters.type;
     if (filters?.priority) where.priority = filters.priority;
@@ -56,6 +80,7 @@ export class NotificationService {
   }
 
   async findUnread(userId: string) {
+    await this.syncCriticalNotifications(userId);
     return this.repo.find({
       where: { user_id: userId, status: 'CREATED', deleted_at: IsNull() },
       order: { created_at: 'DESC' },
