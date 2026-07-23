@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, In } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { SureEngineService, SureResult } from '../sure-engine/sure-engine.service';
 import { User } from '../auth/entities/user.entity';
 import { CaseFile } from '../case-file/entities/case-file.entity';
+import { Court } from '../court/entities/court.entity';
 
 @Injectable()
 export class NotificationService {
@@ -13,6 +14,7 @@ export class NotificationService {
     @InjectRepository(Notification) private repo: Repository<Notification>,
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(CaseFile) private caseFileRepo: Repository<CaseFile>,
+    @InjectRepository(Court) private courtRepo: Repository<Court>,
     private sureEngine: SureEngineService,
   ) {}
   async createNotification(userId: string, dto: CreateNotificationDto): Promise<Notification> {
@@ -36,11 +38,14 @@ export class NotificationService {
     const entity = this.repo.create({ ...dto, user_id: userId, status: 'CREATED' });
     return this.repo.save(entity);
   }
-
   private async syncCriticalNotifications(userId: string): Promise<void> {
     const user = await this.userRepo.findOne({ where: { id: userId, deleted_at: IsNull() } });
     if (!user?.courthouse_id) return;
-    const entries = await this.sureEngine.getKritikSures([user.courthouse_id]);
+    const courts = await this.courtRepo.find({
+      where: { courthouse_id: user.courthouse_id, deleted_at: IsNull() },
+    });
+    const courtIds = courts.map((court) => court.id);
+    const entries = await this.sureEngine.getKritikSures(courtIds);
     for (const entry of entries) {
       await this.createNotification(userId, {
         user_id: userId,
@@ -56,7 +61,7 @@ export class NotificationService {
       });
     }
     const appealCases = await this.caseFileRepo.find({
-      where: { court_id: user.courthouse_id, deleted_at: IsNull() },
+      where: { court_id: In(courtIds), deleted_at: IsNull() },
     });
     for (const caseFile of appealCases.filter((item) => item.kanun_yolu)) {
       await this.createNotification(userId, {
