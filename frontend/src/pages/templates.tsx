@@ -29,7 +29,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { Plus, Trash, Pencil, Copy, Eye, Globe, MapPin, Building2, Lock, FileText } from 'lucide-react';
+import { Plus, Trash, Pencil, Copy, Eye, Globe, MapPin, Building2, Lock, FileText, Search } from 'lucide-react';
 
 interface Template {
   id: string;
@@ -125,6 +125,7 @@ export default function Templates() {
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data, isLoading } = useQuery<Template[]>({
     queryKey: ['templates'],
@@ -143,9 +144,13 @@ export default function Templates() {
   });
 
   const templates = data || [];
-  const filtered = categoryFilter
-    ? templates.filter((t) => t.category === categoryFilter)
-    : templates;
+  const normalizedSearch = searchQuery.trim().toLocaleLowerCase('tr-TR');
+  const filtered = templates.filter((template) => {
+    const matchesCategory = !categoryFilter || template.category === categoryFilter;
+    if (!normalizedSearch) return matchesCategory;
+    const searchableText = `${template.title} ${plainTextFromHtml(template.content)} ${template.category}`.toLocaleLowerCase('tr-TR');
+    return matchesCategory && searchableText.includes(normalizedSearch);
+  });
   const handleCopy = async (template: Template) => {
     setCopyError('');
     try {
@@ -192,20 +197,32 @@ export default function Templates() {
       )}
 
       {/* Filters */}
-      <div className="flex gap-2">
-        {['', 'TEXT', 'DECISION', 'MUZEKKERE'].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setCategoryFilter(cat)}
-            className={`px-3 py-1.5 text-[11px] font-medium rounded-lg border transition-colors ${
-              categoryFilter === cat
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-card text-muted-foreground border-border hover:bg-muted'
-            }`}
-          >
-            {cat ? categoryLabels[cat] : 'Tümü'}
-          </button>
-        ))}
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Başlık veya içerikte ara..."
+            className="h-9 pl-9 text-xs"
+            aria-label="Şablonlarda ara"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {['', 'TEXT', 'DECISION', 'MUZEKKERE'].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategoryFilter(cat)}
+              className={`rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                categoryFilter === cat
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              {cat ? categoryLabels[cat] : 'Tümü'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
