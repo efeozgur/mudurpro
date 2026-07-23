@@ -111,7 +111,7 @@ export default function NotificationCenter() {
                         <Check className="h-3 w-3" />
                       </Button>
                     )}
-                    {n.status === 'READ' && (
+                    {(n.status === 'READ' || n.status === 'COMPLETED') && (
                       <Button variant="ghost" size="xs" onClick={() => deleteRead.mutate(n.id)} title="Bildirimi sil">
                         <Trash2 className="h-3 w-3 text-destructive" />
                       </Button>
