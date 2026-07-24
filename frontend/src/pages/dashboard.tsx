@@ -465,6 +465,7 @@ export default function Dashboard() {
                   <TableRow>
                     <TableHead>Esas No</TableHead>
                     <TableHead>Mahkeme</TableHead>
+                    <TableHead>Bekleyen işlem</TableHead>
                     <TableHead className="text-right">Kalan Süre</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -477,6 +478,7 @@ export default function Dashboard() {
                     >
                       <TableCell className="font-semibold text-xs">{item.esasNo}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{item.courtName || '-'}</TableCell>
+                      <TableCell className="max-w-[360px] text-xs text-muted-foreground">{item.title || 'Dosya durumunu kontrol edin.'}</TableCell>
                       <TableCell className="text-right text-xs">
                         {item.remainingDays != null ? (
                           <span className={item.remainingDays <= 0 ? 'text-destructive font-bold' : item.remainingDays <= 7 ? 'text-amber-600 font-medium' : 'text-success'}>

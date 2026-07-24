@@ -166,11 +166,19 @@ export class DashboardService {
     const criticalDeadlinesItems = await Promise.all(
       kritikSures.map(async (k) => {
         const cf = await this.caseFileRepo.findOne({ where: { id: k.caseId } });
+        const actionByStatus: Record<string, string> = {
+          GECMIS: 'Süre geçmiş: tebligat ve kanun yolu durumunu hemen kontrol edin.',
+          KRITIK: 'Kritik süre: ilgili tebligat veya kanun yolu işlemini tamamlayın.',
+          YAKLASIYOR: 'Süre yaklaşıyor: dosyadaki eksik işlemleri tamamlayın.',
+          READY_FOR_FINALIZATION: 'Tüm taraf karar tebligatlarını kontrol edip kesinleştirin.',
+          READY_FOR_APPEAL_TRANSFER: 'Kanun yolu evrakını kontrol edip üst mahkemeye gönderin.',
+        };
         return {
           id: k.id,
           caseId: k.caseId,
           esasNo: k.esasNo,
           remainingDays: k.remainingDays,
+          title: actionByStatus[k.status] || 'Dosya süre durumunu kontrol edin.',
           courtName: cf ? courtMap[cf.court_id] : '',
           courtId: cf ? cf.court_id : undefined,
         };
