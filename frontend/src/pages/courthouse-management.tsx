@@ -156,6 +156,12 @@ function CourthouseForm({ id, onSuccess, onCancel }: { id?: string; onSuccess: (
 
   // Merkez seçilince ilçe adliyelerini yükle
   useEffect(() => {
+    if (selectedMerkez === '__TEST__') {
+      setIlceList([]);
+      setSelectedIlce('');
+      setForm({ name: 'Test Adliyesi', city: 'Test İli', district: 'Test İlçesi' });
+      return;
+    }
     if (selectedMerkez) {
       apiClient.get(`/courthouses/hierarchy/${encodeURIComponent(selectedMerkez)}`).then(res => {
         setIlceList(res.data.data || []);
@@ -223,6 +229,7 @@ function CourthouseForm({ id, onSuccess, onCancel }: { id?: string; onSuccess: (
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="">-- Seçiniz --</option>
+            <option value="__TEST__">Test Adliyesi (Test İli)</option>
             {merkezList.map((m: any) => (
               <option key={m.name} value={m.name}>{m.name} ({m.il})</option>
             ))}
@@ -230,7 +237,7 @@ function CourthouseForm({ id, onSuccess, onCancel }: { id?: string; onSuccess: (
         </div>
       )}
 
-      {selectedMerkez && (
+      {selectedMerkez && selectedMerkez !== '__TEST__' && (
         <div className="space-y-2">
           <Label>İlçe Adliyesi <span className="text-muted-foreground text-[11px]">(isteğe bağlı)</span></Label>
           <select
