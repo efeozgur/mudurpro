@@ -22,5 +22,16 @@ export class VersionService implements OnModuleInit {
       await this.changes.save(release.changes.map((description, sort_order) => this.changes.create({ version_id: version.id, description, sort_order })));
     }
   }
-  findAll() { return this.versions.find({ relations: { changes: true }, order: { release_date: 'DESC' } }); }
+  async findAll() {
+    const versions = await this.versions.find({ relations: { changes: true } });
+    return versions.sort((a, b) => {
+      const parse = (value: string) => value.replace(/^v/i, '').split('.').map(Number);
+      const av = parse(a.version);
+      const bv = parse(b.version);
+      for (let i = 0; i < Math.max(av.length, bv.length); i += 1) {
+        if ((bv[i] || 0) !== (av[i] || 0)) return (bv[i] || 0) - (av[i] || 0);
+      }
+      return new Date(b.release_date).getTime() - new Date(a.release_date).getTime();
+    });
+  }
 }
