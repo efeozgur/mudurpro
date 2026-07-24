@@ -8,6 +8,6 @@ export class AppVersion extends BaseEntity {
   @Column({ type: 'date' }) release_date!: string;
   @Column({ type: 'text' }) summary!: string;
   @Column({ default: false }) is_current!: boolean;
-  @Column({ length: 12, nullable: true }) commit_hash!: string | null;
+  @Column({ type: 'varchar', length: 12, nullable: true }) commit_hash!: string | null;
   @OneToMany(() => AppVersionChange, (change) => change.version, { cascade: true }) changes!: AppVersionChange[];
 }
