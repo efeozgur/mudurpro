@@ -28,16 +28,24 @@ export class AuthService {
     const email = dto.email.trim().toLowerCase();
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('EMAIL_EXISTS');
-    const testCourthouse = await this.userRepo.manager.query(
-      `SELECT id FROM public.courthouses WHERE name = 'Test Adliyesi' AND active = true AND deleted_at IS NULL LIMIT 1`,
+    const [testCourthouse] = await this.userRepo.manager.query(
+      `SELECT id, schema_name FROM public.courthouses WHERE name = 'Test Adliyesi' AND active = true AND deleted_at IS NULL LIMIT 1`,
     );
-    if (!testCourthouse.length) throw new NotFoundException('TEST_COURTHOUSE_NOT_CONFIGURED');
+    if (!testCourthouse) throw new NotFoundException('TEST_COURTHOUSE_NOT_CONFIGURED');
+    const [testCourt] = await this.userRepo.manager.query(
+      `SELECT id FROM "${testCourthouse.schema_name}"."courts" WHERE name = 'Test Mahkemesi' AND deleted_at IS NULL LIMIT 1`,
+    );
+    if (!testCourt) throw new NotFoundException('TEST_COURT_NOT_CONFIGURED');
     const user = this.userRepo.create({
       name: dto.name.trim(), email, password_hash: await bcrypt.hash(dto.password, 10),
-      role: 'MUDUR', courthouse_id: testCourthouse[0].id, active: false,
+      role: 'MUDUR', courthouse_id: testCourthouse.id, active: false,
       registration_status: 'PENDING', rejection_reason: null, approved_at: null, approved_by: null,
     });
     await this.userRepo.save(user);
+    await this.userRepo.manager.query(
+      `INSERT INTO "${testCourthouse.schema_name}"."user_courts" (id, user_id, court_id, created_at, updated_at) VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())`,
+      [user.id, testCourt.id],
+    );
     const { password_hash, ...result } = user;
     return result;
   }
