@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
@@ -12,8 +13,9 @@ import {
   Archive,
   FileText,
   X,
+  ChevronDown,
+  History,
 } from 'lucide-react';
-
 interface NavItem {
   label: string;
   path: string;
@@ -47,6 +49,7 @@ function getInitials(name: string) {
 export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => void }) {
   const { user } = useAuth();
   const location = useLocation();
+  const [showVersions, setShowVersions] = useState(false);
   const role = user?.role || '';
   const filtered = navItems.filter((item) =>
     item.roles.includes(role) && (role !== 'KATIP' || !item.permission || user?.permissions?.includes(item.permission)),
@@ -94,6 +97,21 @@ export function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => voi
           );
         })}
       </nav>
+      <div className="relative border-t border-[#2D2724] px-3 pt-3">
+        <button type="button" onClick={() => setShowVersions((current) => !current)} className="flex w-full items-center justify-between rounded-[6px] px-2 py-2 text-left text-[#D4CFC6] hover:bg-[#2D2724]" aria-expanded={showVersions}>
+          <span className="flex items-center gap-2"><History className="h-3.5 w-3.5 text-[#A0988E]" /><span><span className="block text-[10px] uppercase tracking-wider text-[#A0988E]">Sürüm</span><span className="block text-[12px] font-semibold text-[#F9F6F0]">v1.4.0</span></span></span>
+          <ChevronDown className={cn('h-4 w-4 transition-transform', showVersions && 'rotate-180')} />
+        </button>
+        {showVersions && (
+          <div className="absolute bottom-full left-3 right-3 z-50 mb-2 max-h-80 overflow-y-auto rounded-lg border border-[#443934] bg-[#241f1d] p-3 shadow-xl">
+            <div className="mb-3 flex items-center justify-between"><span className="text-[11px] font-semibold text-[#F9F6F0]">Sürüm Geçmişi</span><span className="rounded-full bg-[#D1634B]/15 px-2 py-0.5 text-[9px] font-semibold text-[#E88770]">Güncel</span></div>
+            <div className="space-y-3 text-[10px] leading-relaxed text-[#C8C2B8]">
+              <div><p className="font-semibold text-[#F9F6F0]">v1.4.0 <span className="font-normal text-[#A0988E]">— 24 Temmuz 2026</span></p><ul className="mt-1 list-disc space-y-0.5 pl-4"><li>Kesinleşme tarihi tüm taraf karar tebligatlarına göre hesaplandı.</li><li>Kritik süreler ve bekleyen tebligatlar için yapılacak işlem gösteriliyor.</li><li>Kanun yolu seçimi dosya türüyle eşleştirildi.</li></ul></div>
+              <div><p className="font-semibold text-[#F9F6F0]">v1.3.0 <span className="font-normal text-[#A0988E]">— 23 Temmuz 2026</span></p><ul className="mt-1 list-disc space-y-0.5 pl-4"><li>Kritik süre ve kanun yolu bildirimleri eklendi.</li><li>Şablonlarda içerik arama özelliği eklendi.</li><li>Okunmuş bildirimler silinebilir hale getirildi.</li></ul></div>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="border-t border-[#2D2724] px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2D2724] text-[12px] font-semibold text-[#D1634B]">
