@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -12,6 +13,13 @@ import { CreateReminderDto } from './dto/create-reminder.dto';
 export class ReminderController {
   constructor(private readonly service: ReminderService) {}
   @Get() async all(@CurrentUser() user: any, @Query('from') from?: string, @Query('to') to?: string) { return { success: true, data: await this.service.findAll(user.id, from, to), message: null }; }
+  @Get('export')
+  async export(@CurrentUser() user: any, @Res() response: Response) {
+    const calendar = await this.service.exportCalendar(user.id);
+    response.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    response.setHeader('Content-Disposition', 'attachment; filename="reminders.ics"');
+    return response.send(calendar);
+  }
   @Post() async create(@CurrentUser() user: any, @Body() dto: CreateReminderDto) { return { success: true, data: await this.service.create(user.id, dto), message: null }; }
   @Patch(':id') async update(@Param('id') id: string, @CurrentUser() user: any, @Body() dto: Partial<CreateReminderDto>) { return { success: true, data: await this.service.update(id, user.id, dto), message: null }; }
   @Patch(':id/complete') async complete(@Param('id') id: string, @CurrentUser() user: any) { return { success: true, data: await this.service.complete(id, user.id), message: null }; }

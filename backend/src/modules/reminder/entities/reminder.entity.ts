@@ -11,6 +11,8 @@ export class Reminder extends BaseEntity {
   @Column({ length: 15, default: 'NORMAL' }) priority!: string;
   @Column({ type: 'timestamptz' }) start_at!: Date;
   @Column({ type: 'timestamptz', nullable: true }) end_at!: Date | null;
+  @Column({ type: 'text', nullable: true }) recurrence_rule!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) recurrence_end!: Date | null;
   @Column({ default: false }) is_all_day!: boolean;
   @Column({ type: 'timestamptz', nullable: true }) remind_at!: Date | null;
   @Column({ length: 20, default: 'PENDING' }) status!: string;

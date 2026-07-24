@@ -6,6 +6,8 @@ export class CreateReminderDto {
   @IsOptional() @IsIn(['LOW','NORMAL','HIGH','URGENT']) priority?: string;
   @IsDateString() start_at!: string;
   @IsOptional() @IsDateString() end_at?: string;
+  @IsOptional() @IsString() @MaxLength(255) recurrence_rule?: string;
+  @IsOptional() @IsDateString() recurrence_end?: string;
   @IsOptional() @IsBoolean() is_all_day?: boolean;
   @IsOptional() @IsDateString() remind_at?: string;
   @IsOptional() @IsUUID() case_file_id?: string;
