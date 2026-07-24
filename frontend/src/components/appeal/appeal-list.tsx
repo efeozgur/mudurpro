@@ -262,8 +262,13 @@ export function AppealList({ caseFileId, kanunYolu }: AppealListProps) {
   );
 }
 function kanunYoluToAppealType(kanunYolu?: string): string {
-  if (kanunYolu === 'İstinaf') return 'ISTINAF';
-  if (kanunYolu === 'Temyiz') return 'TEMYIZ';
+  const normalized = kanunYolu
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/İ/g, 'I');
+  if (normalized?.includes('ISTINAF')) return 'ISTINAF';
+  if (normalized?.includes('TEMYIZ')) return 'TEMYIZ';
   return '';
 }
 

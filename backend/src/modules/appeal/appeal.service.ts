@@ -33,6 +33,17 @@ export class AppealService {
   async create(dto: CreateAppealDto) {
     await this.checkNotFinalized(dto.case_file_id!);
     this.normalizeAppeal(dto);
+    const caseFile = await this.caseFileRepo.findOne({ where: { id: dto.case_file_id, deleted_at: IsNull() } });
+    const normalizedKanunYolu = caseFile?.kanun_yolu
+      ?.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    const expectedType = normalizedKanunYolu?.includes('ISTINAF')
+      ? 'ISTINAF'
+      : normalizedKanunYolu?.includes('TEMYIZ')
+        ? 'TEMYIZ'
+        : null;
+    if (expectedType && dto.type !== expectedType) {
+      throw new BadRequestException(`Bu dosya için yalnızca ${expectedType === 'ISTINAF' ? 'İstinaf' : 'Temyiz'} başvurusu eklenebilir.`);
+    }
     const applicant = await this.partyRepo.findOne({
       where: { id: dto.applicant_party_id, case_file_id: dto.case_file_id, deleted_at: IsNull() },
     });
