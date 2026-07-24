@@ -10,6 +10,7 @@ import { UpdateClerkDto } from './dto/update-clerk.dto';
 import { UpdateClerkAssignmentsDto } from './dto/update-clerk-assignments.dto';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterManagerDto } from './dto/register-manager.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 export const CLERK_MODULES = ['CASES', 'PARTIES', 'SERVICES', 'FEES', 'APPEALS', 'TEMPLATES', 'REPORTS'] as const;
@@ -22,17 +23,62 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async registerManager(dto: RegisterManagerDto) {
+    if (dto.password !== dto.password_confirmation) throw new ConflictException('PASSWORD_MISMATCH');
+    const email = dto.email.trim().toLowerCase();
+    const existing = await this.userRepo.findOne({ where: { email } });
+    if (existing) throw new ConflictException('EMAIL_EXISTS');
+    const courthouse = await this.userRepo.manager.query(
+      'SELECT id FROM public.courthouses WHERE id = $1 AND active = true AND deleted_at IS NULL',
+      [dto.courthouse_id],
+    );
+    if (!courthouse.length) throw new NotFoundException('COURTHOUSE_NOT_FOUND');
+    const user = this.userRepo.create({
+      name: dto.name.trim(), email, password_hash: await bcrypt.hash(dto.password, 10),
+      role: 'MUDUR', courthouse_id: dto.courthouse_id, active: false,
+      registration_status: 'PENDING', rejection_reason: null, approved_at: null, approved_by: null,
+    });
+    await this.userRepo.save(user);
+    const { password_hash, ...result } = user;
+    return result;
+  }
+
+  async listRegistrationCourthouses() {
+    return this.userRepo.manager.query(
+      'SELECT id, name, city, district FROM public.courthouses WHERE active = true AND deleted_at IS NULL ORDER BY city, district, name',
+    );
+  }
+
+  async listApplications() {
+    return this.userRepo.find({ where: { role: 'MUDUR', registration_status: In(['PENDING', 'REJECTED', 'APPROVED']), deleted_at: IsNull() }, order: { created_at: 'DESC' } });
+  }
+
+  async approveApplication(id: string, adminId: string) {
+    const user = await this.userRepo.findOne({ where: { id, registration_status: 'PENDING', deleted_at: IsNull() } });
+    if (!user) throw new NotFoundException('APPLICATION_NOT_FOUND');
+    user.registration_status = 'APPROVED'; user.active = true; user.approved_at = new Date(); user.approved_by = adminId; user.rejection_reason = null;
+    return this.userRepo.save(user);
+  }
+
+  async rejectApplication(id: string, reason: string) {
+    const user = await this.userRepo.findOne({ where: { id, registration_status: 'PENDING', deleted_at: IsNull() } });
+    if (!user) throw new NotFoundException('APPLICATION_NOT_FOUND');
+    user.registration_status = 'REJECTED'; user.active = false; user.rejection_reason = reason.trim();
+    return this.userRepo.save(user);
+  }
+
   async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({ where: { email: dto.email, active: true } });
-    if (!user) throw new UnauthorizedException('INVALID_CREDENTIALS');
-
-    const valid = await bcrypt.compare(dto.password, user.password_hash);
+    const email = dto.email.trim().toLowerCase();
+    const candidate = await this.userRepo.findOne({ where: { email } });
+    if (candidate && candidate.registration_status === 'PENDING') throw new UnauthorizedException('REGISTRATION_PENDING');
+    if (candidate && candidate.registration_status === 'REJECTED') throw new UnauthorizedException(`REGISTRATION_REJECTED:${candidate.rejection_reason || ''}`);
+    if (!candidate || !candidate.active) throw new UnauthorizedException('INVALID_CREDENTIALS');
+    const valid = await bcrypt.compare(dto.password, candidate.password_hash);
     if (!valid) throw new UnauthorizedException('INVALID_CREDENTIALS');
-
-    const payload = { sub: user.id, email: user.email, role: user.role, courthouseId: user.courthouse_id };
+    const payload = { sub: candidate.id, email: candidate.email, role: candidate.role, courthouseId: candidate.courthouse_id };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, role: user.role, name: user.name, courthouseId: user.courthouse_id, permissions: user.permissions || [] },
+      user: { id: candidate.id, email: candidate.email, role: candidate.role, name: candidate.name, courthouseId: candidate.courthouse_id, permissions: candidate.permissions || [] },
     };
   }
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 
+const loginMessages: Record<string, string> = { REGISTRATION_PENDING: 'Başvurunuz henüz onaylanmamıştır. Lütfen sistem yöneticisinin onayını bekleyiniz.' };
 function getHomePath(role: string) {
   if (role === 'SUPER_ADMIN') return '/courthouses';
   if (role === 'ADLIYE_ADMIN') return '/courts';
@@ -29,7 +30,8 @@ export default function Login() {
       const loggedInUser = await login(email, password);
       navigate(getHomePath(loggedInUser.role));
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+      const raw = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || '';
+      const msg = raw.startsWith('REGISTRATION_REJECTED:') ? `Başvurunuz reddedilmiştir. Gerekçe: ${raw.slice(21)}` : loginMessages[raw] || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -84,6 +86,7 @@ export default function Login() {
             Giriş Yap
           </Button>
         </form>
+        <p className="mt-4 text-center text-sm"><a className="underline" href="/register">Müdür kaydı oluştur</a></p>
 
         <p className="text-center mt-6 text-[10px] text-muted-foreground">
           MudurPro v1.0 — Tüm hakları saklıdır

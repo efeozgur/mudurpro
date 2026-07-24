@@ -17,6 +17,8 @@ import Clerks from './pages/clerks';
 import Profile from './pages/profile';
 import Reminders from './pages/reminders';
 import Feedback from './pages/feedback';
+import Register from './pages/register';
+import UserApplications from './pages/user-applications';
 import FeedbackManagement from './pages/feedback-management';
 
 const queryClient = new QueryClient({
@@ -37,6 +39,7 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<HomeRedirect />} />
@@ -56,6 +59,7 @@ function App() {
               <Route path="/reminders" element={<Reminders />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/feedback-management" element={<FeedbackManagement />} />
+              <Route path="/user-applications" element={<UserApplications />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

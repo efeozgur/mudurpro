@@ -15,6 +15,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateClerkDto } from './dto/create-clerk.dto';
 import { UpdateClerkDto } from './dto/update-clerk.dto';
 import { UpdateClerkAssignmentsDto } from './dto/update-clerk-assignments.dto';
+import { RegisterManagerDto } from './dto/register-manager.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,37 @@ export class AuthController {
     return { success: true, data: result, message: null };
   }
 
+  @Get('registration-courthouses')
+  async registrationCourthouses() {
+    return { success: true, data: await this.authService.listRegistrationCourthouses(), message: null };
+  }
+
+  @Post('register')
+  async register(@Body() dto: RegisterManagerDto) {
+    return { success: true, data: await this.authService.registerManager(dto), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Get('applications')
+  async applications() {
+    return { success: true, data: await this.authService.listApplications(), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Patch('applications/:id/approve')
+  async approve(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    return { success: true, data: await this.authService.approveApplication(id, user.id), message: null };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Patch('applications/:id/reject')
+  async reject(@Param('id') id: string, @Body('reason') reason: string) {
+    if (!reason?.trim()) throw new ForbiddenException('REJECTION_REASON_REQUIRED');
+    return { success: true, data: await this.authService.rejectApplication(id, reason), message: null };
+  }
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@CurrentUser() user: { id: string; email: string; role: string }) {
