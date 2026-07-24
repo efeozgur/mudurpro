@@ -1,0 +1,2 @@
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+export class CreateFeedbackDto { @IsIn(['SUGGESTION','BUG','QUESTION','WORKFLOW']) type!: string; @IsString() @IsIn(['CASE','SERVICE','APPEAL','FEE','CALENDAR','NOTIFICATION','REPORT','UI','OTHER']) category!: string; @IsString() @MaxLength(200) title!: string; @IsString() description!: string; @IsOptional() @IsIn(['LOW','NORMAL','IMPORTANT','CRITICAL']) priority?: string; @IsOptional() @IsString() page_url?: string; @IsOptional() @IsString() app_version?: string; }

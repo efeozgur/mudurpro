@@ -18,6 +18,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { SystemSettingModule } from './modules/system-setting/system-setting.module';
 import { TemplateModule } from './modules/template/template.module';
 import { VersionModule } from './modules/version/version.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 import { ReminderModule } from './modules/reminder/reminder.module';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
@@ -46,6 +47,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
     SystemSettingModule,
     VersionModule,
     ReminderModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [

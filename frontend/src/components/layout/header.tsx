@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, Bell, Plus, LogOut, User } from 'lucide-react';
+import { Menu, Bell, Plus, LogOut, User, Lightbulb } from 'lucide-react';
 
 export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, logout } = useAuth();
@@ -51,6 +51,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           </button>
         )}
 
+        <Button variant="ghost" onClick={() => navigate('/feedback')} className="gap-2 text-muted-foreground hover:text-foreground"><Lightbulb className="h-4 w-4" /><span className="hidden lg:inline">Geliştirme Önerileri</span></Button>
         <Button
           variant="ghost"
           size="icon"
