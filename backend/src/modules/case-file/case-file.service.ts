@@ -156,18 +156,30 @@ export class CaseFileService {
       throw new BadRequestException('Geçersiz tarih formatı.');
     }
 
-    // All service records must be SERVED or RETURNED before finalization
     const services = await this.repo.query(
-      `SELECT status FROM service_records WHERE case_file_id = $1 AND deleted_at IS NULL`,
+      `SELECT status, served_date FROM service_records WHERE case_file_id = $1 AND deleted_at IS NULL`,
       [id],
     );
-    const pendingServices = services.filter((sr: any) => sr.status !== 'SERVED' && sr.status !== 'RETURNED');
     const hasAnyService = services.length > 0;
     if (!hasAnyService) {
       throw new BadRequestException('Tebligat kaydı bulunmadan kesinleştirme yapılamaz.');
     }
+    const pendingServices = services.filter((sr: any) => sr.status !== 'SERVED' || !sr.served_date);
     if (pendingServices.length > 0) {
-      throw new BadRequestException('Tüm tebligatlar tamamlanmadan kesinleştirme yapılamaz.');
+      throw new BadRequestException('Kesinleşme için tüm taraflara tebligat yapılmış ve tebliğ tarihleri girilmiş olmalıdır.');
+    }
+    const lastServed = services.reduce((latest: Date, sr: any) => {
+      const served = new Date(sr.served_date);
+      return served > latest ? served : latest;
+    }, new Date(0));
+    const expectedDate = new Date(lastServed);
+    expectedDate.setHours(0, 0, 0, 0);
+    expectedDate.setDate(expectedDate.getDate() + 15);
+    if (expectedDate.getDay() === 6) expectedDate.setDate(expectedDate.getDate() + 3);
+    if (expectedDate.getDay() === 0) expectedDate.setDate(expectedDate.getDate() + 2);
+    const expected = expectedDate.toISOString().slice(0, 10);
+    if (finalizedAt !== expected) {
+      throw new BadRequestException(`Kesinleşme tarihi ${expected} olmalıdır.`);
     }
 
     // Cannot finalize if there is an appeal application
