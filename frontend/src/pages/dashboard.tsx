@@ -519,10 +519,8 @@ export default function Dashboard() {
                     >
                       <TableCell className="font-semibold text-xs">{item.esasNo}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{item.courtName || '-'}</TableCell>
-                      <TableCell className="text-right">
-                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">
-                          Tebligat Çıkar
-                        </span>
+                      <TableCell className="max-w-[380px] text-right text-xs text-muted-foreground">
+                        {item.title || 'Tebligat işlemini kontrol edin.'}
                       </TableCell>
                     </TableRow>
                   ))}

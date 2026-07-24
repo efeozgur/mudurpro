@@ -232,14 +232,21 @@ export class DashboardService {
         where: { case_file_id: cf.id, deleted_at: IsNull() },
       });
 
-      const servedCount = serviceRecords.filter((r) => r.status === 'SERVED').length;
-      if (serviceRecords.length === 0 || servedCount < serviceRecords.length) {
-        items.push({ 
-          id: cf.id, 
-          caseId: cf.id, 
-          esasNo: cf.esas_no, 
+      if (cf.durum === 'FINALIZED' || cf.durum === 'ARCHIVED') continue;
+      const pendingRecords = serviceRecords.filter((record) => record.status !== 'SERVED');
+      if (serviceRecords.length === 0 || pendingRecords.length > 0) {
+        const title = serviceRecords.length === 0
+          ? 'Tebligat kaydı oluşturun.'
+          : pendingRecords.some((record) => record.status === 'RETURNED')
+            ? 'İade edilen tebligatı düzeltip yeniden çıkarın.'
+            : 'Bekleyen tebligatları çıkarın ve tebliğ tarihlerini girin.';
+        items.push({
+          id: cf.id,
+          caseId: cf.id,
+          esasNo: cf.esas_no,
+          title,
           courtName: courtMap[cf.court_id] || '',
-          courtId: cf.court_id
+          courtId: cf.court_id,
         });
       }
     }
