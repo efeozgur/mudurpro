@@ -324,15 +324,12 @@ export class SureEngineService {
   async getKritikSures(courtIds: string[]): Promise<KritikSureEntry[]> {
     if (!courtIds || courtIds.length === 0) return [];
 
-    const caseFiles = await this.caseFileRepo.find({
-      where: { deleted_at: IsNull() },
-    });
-
+    const caseFiles = await this.caseFileRepo.find({ where: { deleted_at: IsNull() } });
     const results: KritikSureEntry[] = [];
 
     for (const cf of caseFiles) {
+      if (cf.durum === 'FINALIZED' || cf.durum === 'ARCHIVED') continue;
       if (!courtIds.includes(cf.court_id)) continue;
-
       try {
         const sure = await this.calculateSures(cf.id);
         if (
