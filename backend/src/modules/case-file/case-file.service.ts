@@ -188,10 +188,20 @@ export class CaseFileService {
   async remove(id: string) {
     const entity = await this.repo.findOne({ where: { id, deleted_at: IsNull() } });
     if (!entity) throw new NotFoundException('Dosya bulunamadı.');
-    const relatedTables = ['service_records', 'appeals', 'appeal_responses', 'fee_trackings', 'parties', 'notifications'];
+    const relatedTables = ['service_records', 'fee_trackings', 'parties', 'notifications'];
     for (const table of relatedTables) {
       await this.repo.query(`UPDATE "${table}" SET deleted_at = NOW() WHERE case_file_id = $1 AND deleted_at IS NULL`, [id]);
     }
+    await this.repo.query(
+      `UPDATE "appeal_responses" SET deleted_at = NOW()
+       WHERE appeal_id IN (SELECT id FROM "appeals" WHERE case_file_id = $1)
+       AND deleted_at IS NULL`,
+      [id],
+    );
+    await this.repo.query(
+      `UPDATE "appeals" SET deleted_at = NOW() WHERE case_file_id = $1 AND deleted_at IS NULL`,
+      [id],
+    );
     await this.repo.softRemove(entity);
     return { id, deleted: true };
   }
