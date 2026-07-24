@@ -69,7 +69,7 @@ export class ReminderService {
       ...dto,
       owner_user_id: userId,
       shared_with_user_ids: [...new Set(sharedWith)],
-      assigned_to_user_id: dto.assigned_to_user_id ?? null,
+      assigned_to_user_id: dto.assigned_to_user_id || null,
       start_at: new Date(dto.start_at),
       end_at: dto.end_at ? new Date(dto.end_at) : null,
       recurrence_end: dto.recurrence_end ? new Date(dto.recurrence_end) : null,
