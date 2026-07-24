@@ -157,7 +157,7 @@ export class CaseFileService {
     }
 
     const services = await this.repo.query(
-      `SELECT status, served_date FROM service_records WHERE case_file_id = $1 AND deleted_at IS NULL`,
+      `SELECT type, status, served_date FROM service_records WHERE case_file_id = $1 AND deleted_at IS NULL`,
       [id],
     );
     const hasAnyService = services.length > 0;
