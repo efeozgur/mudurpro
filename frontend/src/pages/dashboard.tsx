@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate, useNavigate } from 'react-router-dom';
 import apiClient from '@/lib/api-client';
 import { useAuth } from '@/lib/auth';
+import { Link } from 'react-router-dom';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { SuggestionBox } from '@/components/dashboard/suggestion-box';
 import { LoadingSpinner } from '@/components/shared/loading-spinner';
@@ -135,6 +136,7 @@ interface DashboardData {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { data: todayReminders = [] } = useQuery<Array<{ id: string; title: string; start_at: string; status: string }>>({ queryKey: ['reminders'], queryFn: async () => (await apiClient.get('/reminders')).data.data });
   const [selectedCourtId, setSelectedCourtId] = useState<string>('ALL');
   const [detailTab, setDetailTab] = useState<'critical' | 'pending' | 'tracking'>('critical');
   const [searchQuery, setSearchQuery] = useState('');
@@ -208,6 +210,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 sm:space-y-8">
 
+      <div className="rounded-lg border border-border bg-card/50 p-4"><div className="mb-3 flex items-center justify-between"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Bugünün Hatırlatmaları</p><Link className="text-xs text-primary" to="/reminders">Tümünü gör</Link></div>{todayReminders.filter((r) => new Date(r.start_at).toDateString() === new Date().toDateString() && r.status !== 'COMPLETED').slice(0, 5).map((r) => <div key={r.id} className="flex justify-between border-b py-2 text-sm last:border-0"><span>{r.title}</span><span className="text-xs text-muted-foreground">{new Date(r.start_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span></div>)}{todayReminders.filter((r) => new Date(r.start_at).toDateString() === new Date().toDateString() && r.status !== 'COMPLETED').length === 0 && <p className="text-sm text-muted-foreground">Bugün için hatırlatma yok.</p>}</div>
       {/* ================================================================ */}
       {/* SECTION 1: HEADER                                                */}
       {/* ================================================================ */}
