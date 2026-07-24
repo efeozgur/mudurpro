@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsIn, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsIn, IsOptional, IsString, IsUUID, MaxLength, ValidateIf } from 'class-validator';
 
 export class CreateReminderDto {
   @IsString() @MaxLength(200) title!: string;
@@ -13,5 +13,5 @@ export class CreateReminderDto {
   @IsOptional() @IsDateString() remind_at?: string | null;
   @IsOptional() @IsUUID() case_file_id?: string;
   @IsOptional() @IsArray() @IsUUID('4', { each: true }) shared_with_user_ids?: string[];
-  @IsOptional() @IsUUID() assigned_to_user_id?: string | null;
+  @IsOptional() @ValidateIf((_, value) => value !== '') @IsUUID() assigned_to_user_id?: string | null;
 }
