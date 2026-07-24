@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Param, Body, Query, UseGuards, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, UseGuards, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -131,6 +131,15 @@ export class CaseFileController {
   async update(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: UpdateCaseFileDto) {
     await this.assertCaseAccess(user, id);
     return { success: true, data: await this.service.update(id, dto), message: null };
+  }
+
+  @Delete(':id')
+  async remove(@CurrentUser() user: any, @Param('id') id: string) {
+    if (user.role !== 'MUDUR') {
+      throw new ForbiddenException('Dosya silme yetkisi yalnızca müdüre aittir.');
+    }
+    await this.assertCaseAccess(user, id, true);
+    return { success: true, data: await this.service.remove(id), message: null };
   }
 
   @Patch(':id/finalize')

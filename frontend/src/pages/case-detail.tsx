@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/auth';
 import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -32,6 +33,7 @@ import {
   Edit3,
   CheckCircle,
   ShieldAlert,
+  Trash2,
 } from 'lucide-react';
 
 function formatEventTitle(entry: AuditLog): string {
@@ -109,6 +111,7 @@ export default function CaseDetail() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const activeTab = (searchParams.get('tab') as TabType) || 'general';
 
@@ -117,6 +120,7 @@ export default function CaseDetail() {
   };
   const [showEdit, setShowEdit] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   const [showFinalize, setShowFinalize] = useState(false);
   const [finalizeDate, setFinalizeDate] = useState('');
@@ -146,6 +150,14 @@ export default function CaseDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
       setShowArchiveConfirm(false);
+    },
+  });
+  const deleteMutation = useMutation({
+    mutationFn: () => apiClient.delete(`/cases/${id}`),
+    onSuccess: () => {
+      setShowDeleteConfirm(false);
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      navigate('/cases');
     },
   });
 
@@ -259,6 +271,11 @@ export default function CaseDetail() {
           ) : (
             <Button variant="outline" size="sm" onClick={() => setShowArchiveConfirm(true)} className="h-9 gap-1.5 text-xs font-semibold px-4 text-destructive hover:bg-destructive/5 hover:text-destructive">
               <Archive className="h-3.5 w-3.5" /> Arşivle
+            </Button>
+          )}
+          {user?.role === 'MUDUR' && (
+            <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(true)} disabled={deleteMutation.isPending} className="h-9 gap-1.5 text-xs font-semibold px-4 text-destructive hover:bg-destructive/5 hover:text-destructive">
+              <Trash2 className="h-3.5 w-3.5" /> Dosyayı Sil
             </Button>
           )}
         </div>
@@ -605,6 +622,16 @@ export default function CaseDetail() {
         variant="destructive"
         onConfirm={() => archiveMutation.mutate()}
         loading={archiveMutation.isPending}
+      />
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Dosyayı ve ilişkili kayıtları sil"
+        description="Bu dosya ile birlikte tüm tebligat, kanun yolu başvuruları, kanun yolu cevapları, harç ve ilgili bildirim kayıtları silinecektir. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?"
+        confirmLabel="Dosyayı Sil"
+        variant="destructive"
+        onConfirm={() => deleteMutation.mutate()}
+        loading={deleteMutation.isPending}
       />
 
       <ConfirmDialog
