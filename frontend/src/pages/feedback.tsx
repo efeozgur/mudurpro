@@ -1,2 +1,34 @@
-import { useState } from 'react'; import { useMutation,useQuery,useQueryClient } from '@tanstack/react-query'; import apiClient from '@/lib/api-client'; import { Button } from '@/components/ui/button';
-export default function Feedback(){const qc=useQueryClient();const [form,setForm]=useState({type:'SUGGESTION',category:'OTHER',title:'',description:'',priority:'NORMAL'});const {data=[]}=useQuery<any[]>({queryKey:['feedback','mine'],queryFn:async()=>(await apiClient.get('/feedback/mine')).data.data});const send=useMutation({mutationFn:(v:any)=>apiClient.post('/feedback',{...v,page_url:location.pathname,app_version:'v1.6.0'}),onSuccess:()=>{qc.invalidateQueries({queryKey:['feedback','mine']});setForm({...form,title:'',description:''})}});return <div className="mx-auto max-w-4xl space-y-6 p-6"><div><h1 className="text-2xl font-semibold">Geliştirme Önerileri</h1><p className="text-sm text-muted-foreground">Önerilerinizi, hata bildirimlerinizi ve kullanım sorularınızı buradan iletebilirsiniz.</p></div><form className="space-y-3 rounded-lg border bg-card p-5" onSubmit={e=>{e.preventDefault();send.mutate(form)}}><div className="grid gap-3 sm:grid-cols-2"><select className="rounded border p-2" value={form.type} onChange={e=>setForm({...form,type:e.target.value})}><option value="SUGGESTION">Geliştirme önerisi</option><option value="BUG">Hata bildirimi</option><option value="QUESTION">Kullanım sorusu</option><option value="WORKFLOW">İş akışı önerisi</option></select><select className="rounded border p-2" value={form.category} onChange={e=>setForm({...form,category:e.target.value})}><option value="OTHER">Diğer</option><option value="CASE">Dosya yönetimi</option><option value="SERVICE">Tebligat</option><option value="CALENDAR">Takvim ve hatırlatmalar</option><option value="NOTIFICATION">Bildirimler</option><option value="UI">Arayüz</option></select></div><input className="w-full rounded border p-2" required placeholder="Başlık" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><textarea className="min-h-32 w-full rounded border p-2" required placeholder="Açıklama" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/><div className="flex justify-end"><Button type="submit" disabled={send.isPending}>Gönder</Button></div></form><div className="rounded-lg border p-5"><h2 className="mb-3 font-medium">Gönderdiğim bildirimler</h2>{data.map(item=><div className="border-b py-3 text-sm last:border-0" key={item.id}><b>{item.title}</b><span className="ml-2 text-muted-foreground">{item.status}</span><p className="text-muted-foreground">{item.description}</p></div>)}</div><div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">Sistem üzerinden bildirim göndermeniz önceliklidir. Acil durumlarda geliştirici Özgür’e <a className="font-semibold underline" href="tel:+905332600225">0 533 260 02 25</a> numarasından ulaşabilirsiniz.</div></div>}
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/lib/api-client';
+import { Button } from '@/components/ui/button';
+
+const statusLabels: Record<string, string> = {
+  SUBMITTED: 'Yeni',
+  REVIEWING: 'İnceleniyor',
+  PLANNED: 'Planlandı',
+  IN_PROGRESS: 'Geliştiriliyor',
+  COMPLETED: 'Tamamlandı',
+  REJECTED: 'Reddedildi',
+};
+
+export default function Feedback() {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({ type: 'SUGGESTION', category: 'OTHER', title: '', description: '', priority: 'NORMAL' });
+  const { data = [] } = useQuery<any[]>({ queryKey: ['feedback', 'mine'], queryFn: async () => (await apiClient.get('/feedback/mine')).data.data });
+  const send = useMutation({
+    mutationFn: (value: any) => apiClient.post('/feedback', { ...value, page_url: location.pathname, app_version: 'v1.6.0' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['feedback', 'mine'] }); setForm({ ...form, title: '', description: '' }); },
+  });
+  return <div className="mx-auto max-w-4xl space-y-6 p-6">
+    <div><h1 className="text-2xl font-semibold">Geliştirme Önerileri</h1><p className="text-sm text-muted-foreground">Önerilerinizi, hata bildirimlerinizi ve kullanım sorularınızı buradan iletebilirsiniz.</p></div>
+    <form className="space-y-3 rounded-lg border bg-card p-5" onSubmit={e => { e.preventDefault(); send.mutate(form); }}>
+      <div className="grid gap-3 sm:grid-cols-2"><select className="rounded border p-2" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}><option value="SUGGESTION">Geliştirme önerisi</option><option value="BUG">Hata bildirimi</option><option value="QUESTION">Kullanım sorusu</option><option value="WORKFLOW">İş akışı önerisi</option></select><select className="rounded border p-2" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}><option value="OTHER">Diğer</option><option value="CASE">Dosya yönetimi</option><option value="SERVICE">Tebligat</option><option value="CALENDAR">Takvim ve hatırlatmalar</option><option value="NOTIFICATION">Bildirimler</option><option value="UI">Arayüz</option></select></div>
+      <input className="w-full rounded border p-2" required placeholder="Başlık" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+      <textarea className="min-h-32 w-full rounded border p-2" required placeholder="Açıklama" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+      <div className="flex justify-end"><Button type="submit" disabled={send.isPending}>Gönder</Button></div>
+    </form>
+    <div className="rounded-lg border p-5"><h2 className="mb-3 font-medium">Gönderdiğim bildirimler</h2>{data.map(item => <div className="border-b py-3 text-sm last:border-0" key={item.id}><b>{item.title}</b><span className="ml-2 text-muted-foreground">{statusLabels[item.status] || item.status}</span><p className="text-muted-foreground">{item.description}</p></div>)}</div>
+    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">Sistem üzerinden bildirim göndermeniz önceliklidir. Acil durumlarda geliştirici Özgür’e <a className="font-semibold underline" href="tel:+905332600225">0 533 260 02 25</a> numarasından ulaşabilirsiniz.</div>
+  </div>;
+}
