@@ -185,6 +185,9 @@ export default function CaseDetail() {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
       setShowFinalize(false);
     },
+    onError: (error: any) => {
+      window.alert(error.response?.data?.message || 'Kesinleştirme işlemi yapılamadı.');
+    },
   });
 
   // Status summary queries
@@ -379,8 +382,19 @@ export default function CaseDetail() {
                 className="w-full mt-2"
                 size="sm"
                 onClick={() => {
+                  const servedDates = (servicesForStats || [])
+                    .filter((service) => service.status === 'SERVED' && service.served_date)
+                    .map((service) => new Date(service.served_date).getTime());
+                  if (servedDates.length > 0) {
+                    const expected = new Date(Math.max(...servedDates));
+                    expected.setDate(expected.getDate() + 15);
+                    if (expected.getDay() === 6) expected.setDate(expected.getDate() + 3);
+                    if (expected.getDay() === 0) expected.setDate(expected.getDate() + 2);
+                    setFinalizeDate(`${expected.getFullYear()}-${String(expected.getMonth() + 1).padStart(2, '0')}-${String(expected.getDate()).padStart(2, '0')}`);
+                  } else {
+                    setFinalizeDate('');
+                  }
                   setShowFinalize(true);
-                  setFinalizeDate(new Date().toISOString().split('T')[0]);
                 }}
               >
                 <CheckCircle className="h-3.5 w-3.5 mr-1" />
