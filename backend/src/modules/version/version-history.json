@@ -1,0 +1,8 @@
+[
+  {"version":"v1.0.0","releaseDate":"2026-07-19","summary":"İlk çalışan temel sürüm.","commitHash":"1410dfc","current":false,"changes":["Docker, NestJS, React, PostgreSQL ve TypeORM altyapısı.","JWT giriş, roller ve tenant yapısı.","Dosya, taraf, tebligat, kanun yolu ve dashboard modülleri."]},
+  {"version":"v1.1.0","releaseDate":"2026-07-19","summary":"Kurumsal arayüz sürümü.","commitHash":"022e5b1","current":false,"changes":["Premium kurumsal arayüz tasarımı.","Dashboard, dosya listesi ve dosya detay ekranları.","Kritik süre, ücret ve taraf form iyileştirmeleri."]},
+  {"version":"v1.2.0","releaseDate":"2026-07-22","summary":"Müdür ve şablon yönetimi.","commitHash":"fe0555d","current":false,"changes":["Katip yetkileri ve müdür-katip atamaları.","Şablon oluşturma, önizleme ve içerik arama.","İl, ilçe ve Türkiye genelinde şablon paylaşımı."]},
+  {"version":"v1.3.0","releaseDate":"2026-07-23","summary":"Bildirim ve arama sistemi.","commitHash":"03ed092","current":false,"changes":["Kritik süre ve kanun yolu bildirimleri.","Okunmuş ve tamamlanmış bildirim yönetimi.","Tekrarlanan bildirimlerin engellenmesi."]},
+  {"version":"v1.4.0","releaseDate":"2026-07-24","summary":"Dosya iş akışı ve kesinleşme.","commitHash":"eb2c6fe","current":false,"changes":["Kesinleşme tarihinin taraf tebligatlarına göre hesaplanması.","Kritik sürelerde yapılacak işlem bilgisinin gösterilmesi.","Kanun yolu ile başvuru türünün eşleştirilmesi."]},
+  {"version":"v1.5.0","releaseDate":"2026-07-24","summary":"Profesyonel hatırlatma ve takvim modülü.","commitHash":"23b5ec8","current":true,"changes":["Aylık takvim ve kişisel hatırlatmalar.","Tekrarlanan hatırlatmalar ve ICS dışa aktarma.","Hatırlatma paylaşımı, görev atama ve işlem geçmişi."]}
+]
