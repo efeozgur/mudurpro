@@ -17,6 +17,7 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { SystemSettingModule } from './modules/system-setting/system-setting.module';
 import { TemplateModule } from './modules/template/template.module';
+import { VersionModule } from './modules/version/version.module';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 @Module({
@@ -42,6 +43,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
     DashboardModule,
     TemplateModule,
     SystemSettingModule,
+    VersionModule,
   ],
   controllers: [AppController],
   providers: [
