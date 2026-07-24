@@ -15,6 +15,7 @@ import SystemSettings from './pages/system-settings';
 import Templates from './pages/templates';
 import Clerks from './pages/clerks';
 import Profile from './pages/profile';
+import Reminders from './pages/reminders';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -50,6 +51,7 @@ function App() {
               <Route path="/templates" element={<Templates />} />
               <Route path="/clerks" element={<Clerks />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/reminders" element={<Reminders />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

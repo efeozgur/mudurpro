@@ -17,6 +17,7 @@ import {
   X,
   ChevronDown,
   History,
+  CalendarDays,
 } from 'lucide-react';
 interface NavItem {
   label: string;
@@ -32,6 +33,7 @@ const navItems: NavItem[] = [
   { label: 'Arşiv', path: '/archived', icon: <Archive className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'CASES' },
   { label: 'Katiplerim', path: '/clerks', icon: <Users className="h-4 w-4" />, roles: ['MUDUR'] },
   { label: 'Şablonlar', path: '/templates', icon: <FileText className="h-4 w-4" />, roles: ['MUDUR', 'KATIP'], permission: 'TEMPLATES' },
+  { label: 'Hatırlatmalar', path: '/reminders', icon: <CalendarDays className="h-4 w-4" />, roles: ['MUDUR'] },
   { label: 'Denetim Kayıtları', path: '/audit', icon: <FileSearch className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
   { label: 'Adliyeler', path: '/courthouses', icon: <Building2 className="h-4 w-4" />, roles: ['SUPER_ADMIN', 'ADLIYE_ADMIN'] },
   { label: 'Mahkemeler', path: '/courts', icon: <Scale className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
