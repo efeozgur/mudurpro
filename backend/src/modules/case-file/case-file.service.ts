@@ -168,7 +168,21 @@ export class CaseFileService {
     if (pendingServices.length > 0) {
       throw new BadRequestException('Kesinleşme için tüm taraflara tebligat yapılmış ve tebliğ tarihleri girilmiş olmalıdır.');
     }
-    const lastServed = services.reduce((latest: Date, sr: any) => {
+    const partyCounts = await this.repo.query(
+      `SELECT
+         (SELECT COUNT(*) FROM parties WHERE case_file_id = $1 AND deleted_at IS NULL) AS party_count,
+         (SELECT COUNT(DISTINCT party_id) FROM service_records
+          WHERE case_file_id = $1 AND type = 'Gerekçeli Karar'
+            AND status = 'SERVED' AND served_date IS NOT NULL AND deleted_at IS NULL) AS served_decision_count`,
+      [id],
+    );
+    const partyCount = Number(partyCounts[0]?.party_count || 0);
+    const servedDecisionCount = Number(partyCounts[0]?.served_decision_count || 0);
+    if (partyCount === 0 || servedDecisionCount < partyCount) {
+      throw new BadRequestException('Karar tüm taraflara tebliğ edilmeden kesinleştirme yapılamaz.');
+    }
+    const decisionServices = services.filter((sr: any) => sr.type === 'Gerekçeli Karar');
+    const lastServed = decisionServices.reduce((latest: Date, sr: any) => {
       const served = new Date(sr.served_date);
       return served > latest ? served : latest;
     }, new Date(0));

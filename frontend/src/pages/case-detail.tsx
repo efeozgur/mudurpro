@@ -383,7 +383,7 @@ export default function CaseDetail() {
                 size="sm"
                 onClick={() => {
                   const servedDates = (servicesForStats || [])
-                    .filter((service) => service.status === 'SERVED' && service.served_date)
+                    .filter((service) => service.type === 'Gerekçeli Karar' && service.status === 'SERVED' && service.served_date)
                     .map((service) => new Date(service.served_date).getTime());
                   if (servedDates.length > 0) {
                     const expected = new Date(Math.max(...servedDates));
