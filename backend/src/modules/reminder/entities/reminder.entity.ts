@@ -5,6 +5,8 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 @Index(['owner_user_id', 'start_at'])
 export class Reminder extends BaseEntity {
   @Column({ type: 'uuid' }) owner_user_id!: string;
+  @Column({ type: 'uuid', nullable: true }) assigned_to_user_id!: string | null;
+  @Column('uuid', { array: true, default: () => 'ARRAY[]::uuid[]' }) shared_with_user_ids!: string[];
   @Column({ length: 200 }) title!: string;
   @Column({ type: 'text', nullable: true }) description!: string | null;
   @Column({ length: 30, default: 'GENERAL' }) type!: string;
