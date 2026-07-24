@@ -1,11 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ReminderService } from './reminder.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
 
 @Controller('reminders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('MUDUR')
 export class ReminderController {
   constructor(private readonly service: ReminderService) {}
   @Get() async all(@CurrentUser() user: any, @Query('from') from?: string, @Query('to') to?: string) { return { success: true, data: await this.service.findAll(user.id, from, to), message: null }; }
