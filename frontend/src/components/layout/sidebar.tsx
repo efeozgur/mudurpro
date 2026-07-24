@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
   { label: 'Adliyeler', path: '/courthouses', icon: <Building2 className="h-4 w-4" />, roles: ['SUPER_ADMIN', 'ADLIYE_ADMIN'] },
   { label: 'Mahkemeler', path: '/courts', icon: <Scale className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
   { label: 'Kullanıcılar', path: '/users', icon: <Users className="h-4 w-4" />, roles: ['ADLIYE_ADMIN', 'SUPER_ADMIN'] },
+  { label: 'Gelen Öneriler', path: '/feedback-management', icon: <FileSearch className="h-4 w-4" />, roles: ['SUPER_ADMIN'] },
   { label: 'Sistem Ayarları', path: '/settings', icon: <Settings className="h-4 w-4" />, roles: ['SUPER_ADMIN'] },
 ];
 

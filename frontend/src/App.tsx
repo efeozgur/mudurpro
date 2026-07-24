@@ -17,6 +17,7 @@ import Clerks from './pages/clerks';
 import Profile from './pages/profile';
 import Reminders from './pages/reminders';
 import Feedback from './pages/feedback';
+import FeedbackManagement from './pages/feedback-management';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -54,6 +55,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/reminders" element={<Reminders />} />
               <Route path="/feedback" element={<Feedback />} />
+              <Route path="/feedback-management" element={<FeedbackManagement />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
