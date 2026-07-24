@@ -11,9 +11,9 @@ export class Feedback extends BaseEntity {
   @Column({type:'text'}) description!: string;
   @Column({length:15,default:'NORMAL'}) priority!: string;
   @Column({length:25,default:'SUBMITTED'}) status!: string;
-  @Column({length:300,nullable:true}) page_url!: string|null;
-  @Column({length:20,nullable:true}) app_version!: string|null;
+  @Column({type:'varchar',length:300,nullable:true}) page_url!: string|null;
+  @Column({type:'varchar',length:20,nullable:true}) app_version!: string|null;
   @Column({type:'text',nullable:true}) admin_note!: string|null;
-  @Column({length:20,nullable:true}) resolved_version!: string|null;
+  @Column({type:'varchar',length:20,nullable:true}) resolved_version!: string|null;
   @Column({type:'timestamptz',nullable:true}) resolved_at!: Date|null;
 }
