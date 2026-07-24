@@ -28,14 +28,13 @@ export class AuthService {
     const email = dto.email.trim().toLowerCase();
     const existing = await this.userRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException('EMAIL_EXISTS');
-    const courthouse = await this.userRepo.manager.query(
-      'SELECT id FROM public.courthouses WHERE id = $1 AND active = true AND deleted_at IS NULL',
-      [dto.courthouse_id],
+    const testCourthouse = await this.userRepo.manager.query(
+      `SELECT id FROM public.courthouses WHERE name = 'Test Adliyesi' AND active = true AND deleted_at IS NULL LIMIT 1`,
     );
-    if (!courthouse.length) throw new NotFoundException('COURTHOUSE_NOT_FOUND');
+    if (!testCourthouse.length) throw new NotFoundException('TEST_COURTHOUSE_NOT_CONFIGURED');
     const user = this.userRepo.create({
       name: dto.name.trim(), email, password_hash: await bcrypt.hash(dto.password, 10),
-      role: 'MUDUR', courthouse_id: dto.courthouse_id, active: false,
+      role: 'MUDUR', courthouse_id: testCourthouse[0].id, active: false,
       registration_status: 'PENDING', rejection_reason: null, approved_at: null, approved_by: null,
     });
     await this.userRepo.save(user);
